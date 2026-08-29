@@ -545,35 +545,6 @@ class AppUI {
       });
     }
   }
-          environment: "Classified_SCIF_Enclave",
-          modality: "physical_bound",
-          prev_entry_hash: prevHash,
-          book_serial: document.getElementById("phys-book-serial").value,
-          page_number: parseInt(document.getElementById("phys-page-num").value, 10),
-          line_number: parseInt(document.getElementById("phys-line-num").value, 10),
-          supervisor_name: document.getElementById("phys-supervisor-name").value,
-          supervisor_trade_id: document.getElementById("phys-supervisor-id").value,
-          practitioner_trade_id: this.profile.trade_id,
-          physical_signature_present: true,
-          status: "signed",
-          created_at: new Date().toISOString()
-        };
-
-        entry.entry_hash = await CryptoEngine.computeEntryHash(entry, prevHash);
-        await this.storage.saveEntry(entry);
-        this.entries.unshift(entry);
-        physicalForm.reset();
-        alert("Physical logbook page transcription cryptographically chained.");
-        this.render();
-      });
-    }
-  }
-
-    const flags = [];
-    const h = parseFloat(entry.hours) || 0;
-
-    if (h > 14.0) {
-      flags.push("Shift exceeds 14-Hour Incident Operational Ceiling.");
 
   render() {
     const metrics = TradeEngine.calculateMetrics(this.entries, this.profile);
@@ -695,7 +666,9 @@ class AppUI {
       this.currentDemoPersona = "apprentice";
       this.setDemoMode(true, "DEMO MODE: Apprentice Persona (Jane Doe - 3.4k hrs)");
       this.render();
-      alert("Apprentice Demo Loaded: Jane Doe (Tier 2 Apprentice, 3,400.0 hrs across 5 domains).");
+      if (typeof switchTab === "function") {
+        switchTab("view-dashboard");
+      }
     } catch (err) {
       alert("Failed to load apprentice demo: " + err.message);
     }
@@ -713,7 +686,9 @@ class AppUI {
       this.currentDemoPersona = "supervisor";
       this.setDemoMode(true, "DEMO MODE: Supervisor Persona (Marcus Vance - 9.2k hrs)");
       this.render();
-      alert("Supervisor Demo Loaded: Marcus Vance (Licensed Journeyman, 9,200.0 hrs, Supervisory Queue Active).");
+      if (typeof switchTab === "function") {
+        switchTab("view-dashboard");
+      }
     } catch (err) {
       alert("Failed to load supervisor demo: " + err.message);
     }
@@ -739,7 +714,9 @@ class AppUI {
     };
     this.entries = await this.storage.getAllEntries(this.profile.trade_id);
     this.render();
-    alert("Exited Demo Mode. Restored isolated production trade vault.");
+    if (typeof switchTab === "function") {
+      switchTab("view-dashboard");
+    }
   }
 
   bindDemoControls() {
