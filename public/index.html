@@ -8,7 +8,7 @@
   <meta name="theme-color" content="#0ea5e9">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <link rel="stylesheet" href="styles.css?v=2.1.0">
+  <link rel="stylesheet" href="styles.css?v=2.2.0">
 </head>
 <body>
 
@@ -132,6 +132,9 @@
       </div>
 
       <!-- Recent Entries -->
+      <h3 style="font-size:14px; text-transform:uppercase; color:var(--text-secondary); margin-top:20px; margin-bottom:10px;">Recent Operational Activity</h3>
+      <div id="recent-entries-list" class="entry-list"></div>
+    </section>
 
     <!-- VIEW 2: LOG DIGITAL HOURS -->
     <section id="view-log" class="view-section">
@@ -395,11 +398,11 @@
       window.scrollTo(0, 0);
     }
   </script>
-  <script src="app.js?v=2.1.0"></script>
+  <script src="app.js?v=2.2.0"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js?v=2.1.0').catch(err => {
+        navigator.serviceWorker.register('sw.js?v=2.2.0').catch(err => {
           console.log('ServiceWorker registration skipped:', err);
         });
       });
