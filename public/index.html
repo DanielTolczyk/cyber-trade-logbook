@@ -8,7 +8,7 @@
   <meta name="theme-color" content="#0ea5e9">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <link rel="stylesheet" href="styles.css?v=2.2.0">
+  <link rel="stylesheet" href="styles.css?v=2.3.0">
 </head>
 <body>
 
@@ -18,22 +18,19 @@
       <div class="brand-badge">CTP</div>
       <span class="brand-title">Trade Logbook</span>
     </div>
-    <div style="display:flex; align-items:center; gap:8px;">
-      <button id="btn-top-demo" class="btn btn-primary" style="padding:4px 10px; font-size:11px;" onclick="window.app ? window.app.loadDemoDataset() : alert('Loading demo data...')">Demo (3.4k hrs)</button>
-      <div class="user-profile-badge">
-        <span class="tier-tag" id="header-tier">Tier 1 Apprentice</span>
-      </div>
+    <div class="user-profile-badge">
+      <span class="tier-tag" id="header-tier">Tier 1 Apprentice</span>
     </div>
   </header>
-  <!-- Persistent Demo Banner (Visible in Demo Mode) -->
+
+  <!-- Persistent Demo Banner (Visible Only in Demo Mode) -->
   <div id="demo-mode-banner" class="demo-banner" style="display:none;">
-    <span>DEMO MODE ACTIVE: Sample Apprentice Data (Non-Binding)</span>
+    <span id="demo-banner-text">DEMO MODE: Apprentice Persona (Jane Doe)</span>
     <div class="demo-banner-actions">
-      <button id="btn-demo-reload" class="demo-btn-sm" onclick="window.app && window.app.loadDemoDataset()">Reload</button>
-      <button id="btn-demo-exit" class="demo-btn-sm" onclick="window.app && window.app.exitDemoMode()">Exit Demo</button>
+      <button id="btn-demo-switch" class="demo-btn-sm" onclick="window.app && window.app.toggleDemoPersona()">Switch Persona</button>
+      <button id="btn-demo-exit" class="demo-btn-sm" onclick="window.app && window.app.exitDemoMode()">Exit to Real Mode</button>
     </div>
   </div>
-
 
   <!-- Main App Views -->
   <main class="container">
@@ -47,14 +44,6 @@
             <p style="color:var(--text-secondary); font-size:12px;">Verified OJT Runtime & Licensure Trajectory</p>
           </div>
           <span class="brand-badge" id="hero-wage-standing">50% RJPB</span>
-        </div>
-
-        <div id="dashboard-demo-prompt" style="background:rgba(14,165,233,0.12); border:1px solid var(--accent-cyan); border-radius:var(--radius-md); padding:12px; margin-top:14px; display:flex; justify-content:space-between; align-items:center; gap:8px;">
-          <div>
-            <strong style="font-size:12px; color:var(--text-primary); display:block;">Evaluate Live Demo Dataset:</strong>
-            <span style="font-size:11px; color:var(--text-secondary);">Populate 3,400 hrs across all 5 domains.</span>
-          </div>
-          <button id="btn-hero-load-demo" class="btn btn-primary" style="padding:6px 12px; font-size:11px; white-space:nowrap;" onclick="window.app ? window.app.loadDemoDataset() : alert('Loading demo data...')">Load Demo</button>
         </div>
 
         <div class="hero-stats-grid">
@@ -335,15 +324,19 @@
         </div>
       </div>
 
-      <!-- Demo Studio & Safe Vault Reset Card -->
+      <!-- Demo Studio & Persona Switcher Card -->
       <div class="card" style="margin-top:16px;">
-        <h2 class="card-title">Interactive Demo Studio & Vault Safety</h2>
+        <h2 class="card-title">Demo & Persona Evaluation Studio</h2>
         <p style="color:var(--text-secondary); font-size:12px; margin-bottom:14px;">
-          Evaluate the logbook with pre-populated sample apprentice data or perform a safe vault purge.
+          Explore the logbook from the perspective of an apprentice or a supervising Journeyman, or switch to your real production ledger.
         </p>
-        <div style="display:flex; flex-wrap:wrap; gap:10px;">
-          <button id="btn-load-demo" class="btn btn-secondary">Load Sample Demo Data (3,400 hrs)</button>
-          <button id="btn-purge-vault" class="btn btn-danger">Purge Active Vault</button>
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <button id="btn-load-demo-app" class="btn btn-secondary" onclick="window.app && window.app.loadApprenticeDemo()">Load Apprentice Demo (Jane Doe - 3.4k hrs)</button>
+          <button id="btn-load-demo-sup" class="btn btn-secondary" onclick="window.app && window.app.loadSupervisorDemo()">Load Supervisor Demo (Marcus Vance - 9.2k hrs)</button>
+          <button id="btn-exit-demo" class="btn btn-primary" onclick="window.app && window.app.exitDemoMode()">Switch to Real Production Mode</button>
+          <div style="margin-top:6px; border-top:1px solid var(--border-color); padding-top:10px;">
+            <button id="btn-purge-vault" class="btn btn-danger btn-block">Purge Active Vault</button>
+          </div>
         </div>
       </div>
 

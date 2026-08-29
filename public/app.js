@@ -683,24 +683,52 @@ class AppUI {
     });
   }
 
-  async loadDemoDataset() {
+  async loadApprenticeDemo() {
     try {
-      const res = await fetch("./data/demo_logbook.json");
+      const res = await fetch("./data/demo_apprentice.json");
       const demoData = await res.json();
       this.profile = demoData.practitioner;
       for (const e of demoData.entries) {
         await this.storage.saveEntry(e);
       }
       this.entries = await this.storage.getAllEntries(this.profile.trade_id);
-      this.setDemoMode(true);
+      this.currentDemoPersona = "apprentice";
+      this.setDemoMode(true, "DEMO MODE: Apprentice Persona (Jane Doe - 3.4k hrs)");
       this.render();
-      alert("Demo Simulation Mode activated. Sample apprentice records loaded (3,400.0 hrs).");
+      alert("Apprentice Demo Loaded: Jane Doe (Tier 2 Apprentice, 3,400.0 hrs across 5 domains).");
     } catch (err) {
-      alert("Failed to load demo dataset: " + err.message);
+      alert("Failed to load apprentice demo: " + err.message);
+    }
+  }
+
+  async loadSupervisorDemo() {
+    try {
+      const res = await fetch("./data/demo_supervisor.json");
+      const demoData = await res.json();
+      this.profile = demoData.practitioner;
+      for (const e of demoData.entries) {
+        await this.storage.saveEntry(e);
+      }
+      this.entries = await this.storage.getAllEntries(this.profile.trade_id);
+      this.currentDemoPersona = "supervisor";
+      this.setDemoMode(true, "DEMO MODE: Supervisor Persona (Marcus Vance - 9.2k hrs)");
+      this.render();
+      alert("Supervisor Demo Loaded: Marcus Vance (Licensed Journeyman, 9,200.0 hrs, Supervisory Queue Active).");
+    } catch (err) {
+      alert("Failed to load supervisor demo: " + err.message);
+    }
+  }
+
+  async toggleDemoPersona() {
+    if (this.currentDemoPersona === "apprentice") {
+      await this.loadSupervisorDemo();
+    } else {
+      await this.loadApprenticeDemo();
     }
   }
 
   async exitDemoMode() {
+    this.currentDemoPersona = null;
     this.setDemoMode(false);
     this.profile = {
       name: "Jane Doe",
@@ -715,29 +743,19 @@ class AppUI {
   }
 
   bindDemoControls() {
-    const btnLoadDemo = document.getElementById("btn-load-demo");
-    if (btnLoadDemo) {
-      btnLoadDemo.addEventListener("click", () => this.loadDemoDataset());
+    const btnApp = document.getElementById("btn-load-demo-app");
+    if (btnApp) {
+      btnApp.addEventListener("click", () => this.loadApprenticeDemo());
     }
 
-    const btnTopDemo = document.getElementById("btn-top-demo");
-    if (btnTopDemo) {
-      btnTopDemo.addEventListener("click", () => this.loadDemoDataset());
+    const btnSup = document.getElementById("btn-load-demo-sup");
+    if (btnSup) {
+      btnSup.addEventListener("click", () => this.loadSupervisorDemo());
     }
 
-    const btnHeroDemo = document.getElementById("btn-hero-load-demo");
-    if (btnHeroDemo) {
-      btnHeroDemo.addEventListener("click", () => this.loadDemoDataset());
-    }
-
-    const btnReloadDemo = document.getElementById("btn-demo-reload");
-    if (btnReloadDemo) {
-      btnReloadDemo.addEventListener("click", () => this.loadDemoDataset());
-    }
-
-    const btnExitDemo = document.getElementById("btn-demo-exit");
-    if (btnExitDemo) {
-      btnExitDemo.addEventListener("click", () => this.exitDemoMode());
+    const btnExit = document.getElementById("btn-exit-demo");
+    if (btnExit) {
+      btnExit.addEventListener("click", () => this.exitDemoMode());
     }
 
     const btnPurgeVault = document.getElementById("btn-purge-vault");
@@ -865,10 +883,14 @@ class AppUI {
     }
   }
 
-  setDemoMode(active) {
+  setDemoMode(active, bannerText = null) {
     const banner = document.getElementById("demo-mode-banner");
+    const label = document.getElementById("demo-banner-text");
     if (banner) {
       banner.style.display = active ? "flex" : "none";
+      if (label && bannerText) {
+        label.textContent = bannerText;
+      }
     }
   }
 
@@ -882,14 +904,6 @@ if (document.readyState === "loading") {
   window.app.init();
 }
 
-    }
-    if (previousEntry && previousEntry.end_timestamp && entry.start_timestamp) {
-      const restHours = (new Date(entry.start_timestamp) - new Date(previousEntry.end_timestamp)) / 3600000;
-      if (restHours >= 0 && restHours < 10.0) {
-        flags.push("Rest period between shifts is under mandatory 10 uninterrupted hours.");
-      }
-    }
-    return flags;
   }
 }
 

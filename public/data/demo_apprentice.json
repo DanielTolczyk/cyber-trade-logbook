@@ -1,0 +1,97 @@
+{
+  "practitioner": {
+    "trade_id": "CTP-DEMO-APP-0884",
+    "name": "Jane Doe (Apprentice Demo)",
+    "tier": "Tier 2 Apprentice",
+    "pla_hours": 1000,
+    "rti_hours": 288,
+    "supervisor_id": "CTP-JRN-2024-0192"
+  },
+  "entries": [
+    {
+      "id": "urn:uuid:demo-app-001",
+      "date": "2026-08-01",
+      "hours": 8.0,
+      "domain": "D1_PERIMETER_CLOUD",
+      "sub_domain": "FIREWALL_WAF",
+      "work_role": "PR-CDO-001",
+      "environment": "Enterprise_Production",
+      "modality": "digital",
+      "prev_entry_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "entry_hash": "e1a84f3c09b2e1d7a8c4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6",
+      "artifact_type": "git_commit_hash",
+      "artifact_ref": "sha256:4a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b",
+      "summary": "Hardened perimeter WAF rate-limiting rules on public reverse-proxy ingress gateway.",
+      "practitioner_trade_id": "CTP-DEMO-APP-0884",
+      "supervisor_trade_id": "CTP-JRN-2024-0192",
+      "status": "signed",
+      "attestation": {
+        "supervisor_trade_id": "CTP-JRN-2024-0192",
+        "signature": "SIG_DEMO_ED25519_APP_D1_001",
+        "timestamp": "2026-08-02T17:00:00Z"
+      }
+    },
+    {
+      "id": "urn:uuid:demo-app-002",
+      "date": "2026-08-02",
+      "hours": 8.0,
+      "domain": "D2_SYSTEM_HYGIENE",
+      "sub_domain": "SIEM_RULE_AUTHORING",
+      "work_role": "PR-CDA-001",
+      "environment": "Enterprise_Production",
+      "modality": "digital",
+      "prev_entry_hash": "e1a84f3c09b2e1d7a8c4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6",
+      "entry_hash": "f2b9504d1ac3f2e8b9d506b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7",
+      "artifact_type": "rule_hash",
+      "artifact_ref": "rule_sha256:7f83b1657ff1fc53b92dc18148a1d65dfc2d4b1fa3d677284addd200126d9069",
+      "summary": "Authored and tested Sigma detection rule for anomalous Kerberos service ticket requests.",
+      "practitioner_trade_id": "CTP-DEMO-APP-0884",
+      "supervisor_trade_id": "CTP-JRN-2024-0192",
+      "status": "signed",
+      "attestation": {
+        "supervisor_trade_id": "CTP-JRN-2024-0192",
+        "signature": "SIG_DEMO_ED25519_APP_D2_002",
+        "timestamp": "2026-08-03T18:00:00Z"
+      }
+    },
+    {
+      "id": "urn:uuid:demo-app-003",
+      "date": "2026-08-03",
+      "hours": 6.0,
+      "domain": "D1_PERIMETER_CLOUD",
+      "sub_domain": "SCIF_PHYSICAL_OPS",
+      "work_role": "PR-CDO-001",
+      "environment": "Classified_SCIF_Enclave",
+      "modality": "physical_bound",
+      "prev_entry_hash": "f2b9504d1ac3f2e8b9d506b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7",
+      "entry_hash": "a3c0615e2bd403f9cae617c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8",
+      "book_serial": "JATC-LOG-2026-00441",
+      "page_number": 42,
+      "line_number": 3,
+      "supervisor_name": "Marcus Vance, Journeyman",
+      "supervisor_trade_id": "CTP-JRN-2024-0192",
+      "summary": "Physical SCIF Shift: Isolated fiber switch VLAN configuration and ACL audit.",
+      "practitioner_trade_id": "CTP-DEMO-APP-0884",
+      "physical_signature_present": true,
+      "status": "signed"
+    },
+    {
+      "id": "urn:uuid:demo-app-004",
+      "date": "2026-08-04",
+      "hours": 4.5,
+      "domain": "D3_IDENTITY_ACCESS",
+      "sub_domain": "PAM_GOVERNANCE",
+      "work_role": "SP-ARC-001",
+      "environment": "Enterprise_Production",
+      "modality": "digital",
+      "prev_entry_hash": "a3c0615e2bd403f9cae617c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8",
+      "entry_hash": "b4d1726f3ce5140adbf728d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9",
+      "artifact_type": "change_ticket_id",
+      "artifact_ref": "CR-894102-SEC",
+      "summary": "Audited administrative IAM service account credential rotation policies.",
+      "practitioner_trade_id": "CTP-DEMO-APP-0884",
+      "supervisor_trade_id": "CTP-JRN-2024-0192",
+      "status": "pending"
+    }
+  ]
+}
