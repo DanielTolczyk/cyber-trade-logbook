@@ -13,6 +13,8 @@ from .models import (
     CertifiedTradeCredential,
     JATCPhysicalAuditSeal,
     InvalidationBlock,
+    BilateralAttestationBlock,
+    SupervisoryOversightEntry,
 )
 from .crypto import TradeKeyManager, GENESIS_HASH
 from .engine import TradeAccumulator, FatigueMonitor, TradeAccumulatorResult, DomainProgress
@@ -30,6 +32,8 @@ __all__ = [
     "CertifiedTradeCredential",
     "JATCPhysicalAuditSeal",
     "InvalidationBlock",
+    "BilateralAttestationBlock",
+    "SupervisoryOversightEntry",
     "TradeKeyManager",
     "GENESIS_HASH",
     "TradeAccumulator",
@@ -37,6 +41,7 @@ __all__ = [
     "TradeAccumulatorResult",
     "DomainProgress",
 ]
+
 
 
 

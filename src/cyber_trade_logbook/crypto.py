@@ -419,5 +419,98 @@ class TradeKeyManager:
             return False, f"Invalid supervisor revocation signature: {str(e)}"
 
 
+    @classmethod
+    def create_bilateral_attestation_pair(
+        cls,
+        supervisor_private_key: ed25519.Ed25519PrivateKey,
+        supervisor_trade_id: str,
+        supervisor_name: str,
+        apprentice_entry: LogbookEntry,
+        apprentice_prev_hash: str,
+        supervisor_prev_hash: str
+    ):
+        """Generates matching bilateral entries for both Apprentice and Supervisor ledgers."""
+        from .models import BilateralAttestationBlock, SupervisoryOversightEntry, DigitalAttestation
+
+        # Compute canonical apprentice entry hash
+        apprentice_entry_hash = cls.compute_entry_hash(apprentice_entry, apprentice_prev_hash)
+        apprentice_entry.entry_hash = apprentice_entry_hash
+
+        # Supervisor signs the apprentice entry hash
+        sig_bytes = supervisor_private_key.sign(apprentice_entry_hash.encode("utf-8"))
+        sig_b64 = base64.b64encode(sig_bytes).decode("utf-8")
+        timestamp = datetime.now(timezone.utc)
+
+        # 1. Update apprentice entry with digital attestation
+        apprentice_entry.status = "signed"
+        apprentice_entry.attestation = DigitalAttestation(
+            supervisor_signature=sig_b64,
+            signed_timestamp=timestamp
+        )
+
+        # 2. Create bilateral attestation block
+        bilateral_block = BilateralAttestationBlock(
+            supervised_practitioner_trade_id=apprentice_entry.practitioner.trade_id,
+            supervised_practitioner_name=apprentice_entry.practitioner.name,
+            supervised_tier=apprentice_entry.practitioner.tier,
+            apprentice_entry_id=apprentice_entry.log_id,
+            apprentice_entry_hash=apprentice_entry_hash,
+            supervisor_trade_id=supervisor_trade_id,
+            supervisor_name=supervisor_name,
+            supervisory_ratio_on_shift="2:1",
+            supervisor_signature_b64=sig_b64,
+            signed_timestamp=timestamp
+        )
+
+        # 3. Create supervisor supervisory oversight entry
+        sup_entry_id = f"urn:uuid:sup-ovs-{hashlib.sha256(f'{apprentice_entry.log_id}:{supervisor_trade_id}'.encode()).hexdigest()[:16]}"
+        canonical_sup = f"{sup_entry_id}:{supervisor_prev_hash}:{apprentice_entry_hash}:{apprentice_entry.runtime_execution.hours_logged}:{apprentice_entry.runtime_execution.core_domain}"
+        sup_hash = hashlib.sha256(canonical_sup.encode("utf-8")).hexdigest()
+
+        supervisory_entry = SupervisoryOversightEntry(
+            log_id=sup_entry_id,
+            entry_type="supervisory_oversight",
+            prev_entry_hash=supervisor_prev_hash,
+            entry_hash=sup_hash,
+            supervisor_trade_id=supervisor_trade_id,
+            supervisor_name=supervisor_name,
+            date=apprentice_entry.runtime_execution.date,
+            hours_instructed=apprentice_entry.runtime_execution.hours_logged,
+            core_domain=apprentice_entry.runtime_execution.core_domain,
+            bilateral_attestation=bilateral_block
+        )
+
+        return apprentice_entry, supervisory_entry
+
+    @classmethod
+    def verify_bilateral_ledger_match(
+        cls,
+        apprentice_entry: LogbookEntry,
+        supervisory_entry,
+        supervisor_public_key: ed25519.Ed25519PublicKey,
+        apprentice_prev_hash: str
+    ) -> Tuple[bool, Optional[str]]:
+        """Verifies that an apprentice entry and supervisory oversight entry form a valid, matching bilateral pair."""
+        # Check target references
+        if supervisory_entry.bilateral_attestation.apprentice_entry_id != apprentice_entry.log_id:
+            return False, "Bilateral mismatch: supervisory entry does not reference apprentice log ID."
+
+        if supervisory_entry.bilateral_attestation.supervised_practitioner_trade_id != apprentice_entry.practitioner.trade_id:
+            return False, "Bilateral mismatch: practitioner Trade ID does not match supervisory record."
+
+        # Verify apprentice entry hash match
+        expected_apprentice_hash = cls.compute_entry_hash(apprentice_entry, apprentice_prev_hash)
+        if supervisory_entry.bilateral_attestation.apprentice_entry_hash != expected_apprentice_hash:
+            return False, f"Bilateral hash mismatch: expected {expected_apprentice_hash}, got {supervisory_entry.bilateral_attestation.apprentice_entry_hash}"
+
+        # Verify supervisor digital signature
+        try:
+            sig_bytes = base64.b64decode(supervisory_entry.bilateral_attestation.supervisor_signature_b64)
+            supervisor_public_key.verify(sig_bytes, expected_apprentice_hash.encode("utf-8"))
+            return True, None
+        except Exception as e:
+            return False, f"Bilateral signature verification failed: {str(e)}"
+
+
 
 

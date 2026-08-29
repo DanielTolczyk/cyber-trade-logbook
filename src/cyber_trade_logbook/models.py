@@ -104,6 +104,7 @@ class LogbookEntry(BaseModel):
     version: str = "1.1.0"
     entry_modality: Literal["digital", "physical_bound"] = "digital"
     entry_type: Literal["operational_runtime", "invalidation_tombstone"] = "operational_runtime"
+    status: Literal["pending", "signed", "verified", "invalidated"] = "pending"
     is_invalidated: bool = False
     invalidation: Optional[InvalidationBlock] = None
     prev_entry_hash: str = Field(
@@ -185,6 +186,37 @@ class JATCPhysicalAuditSeal(BaseModel):
     regional_local: str
     audit_timestamp: datetime
     examiner_signature_b64: str
+
+class BilateralAttestationBlock(BaseModel):
+    """Bilateral cross-reference linking an apprentice operational shift to a supervisor instructional record."""
+    supervised_practitioner_trade_id: str
+    supervised_practitioner_name: str
+    supervised_tier: str
+    apprentice_entry_id: str
+    apprentice_entry_hash: str
+    supervisor_trade_id: str
+    supervisor_name: str
+    supervisory_ratio_on_shift: str = "2:1"
+    supervisor_signature_b64: str
+    signed_timestamp: datetime
+
+
+class SupervisoryOversightEntry(BaseModel):
+    """Instructional and supervisory oversight entry recorded in a Journeyman/Master personal ledger."""
+    log_id: str
+    entry_type: Literal["supervisory_oversight"] = "supervisory_oversight"
+    prev_entry_hash: str = Field(
+        default="0000000000000000000000000000000000000000000000000000000000000000",
+        description="SHA-256 hash of previous sequential entry in supervisor ledger"
+    )
+    entry_hash: Optional[str] = None
+    supervisor_trade_id: str
+    supervisor_name: str
+    date: date
+    hours_instructed: float = Field(..., gt=0, le=24.0)
+    core_domain: str
+    bilateral_attestation: BilateralAttestationBlock
+
 
 
 

@@ -301,4 +301,49 @@ def test_shared_workstation_cross_practitioner_merge_blocked():
         TradeKeyManager.merge_ledger_chains([e_a], [e_b])
 
 
+def test_bilateral_double_entry_attestation_and_cross_match():
+    sup_priv, sup_pub = TradeKeyManager.generate_keypair()
+    apprentice_entry = make_test_entry("CTP-APP-2026-0884", date(2026, 8, 25), 8.0, GENESIS_HASH)
+    
+    # Generate Bilateral Pair
+    signed_app_entry, sup_entry = TradeKeyManager.create_bilateral_attestation_pair(
+        supervisor_private_key=sup_priv,
+        supervisor_trade_id="CTP-JRN-2024-0192",
+        supervisor_name="Marcus Vance",
+        apprentice_entry=apprentice_entry,
+        apprentice_prev_hash=GENESIS_HASH,
+        supervisor_prev_hash=GENESIS_HASH
+    )
+    
+    # 1. Apprentice entry is signed
+    assert signed_app_entry.status == "signed"
+    assert signed_app_entry.attestation is not None
+    
+    # 2. Supervisory entry is recorded
+    assert sup_entry.entry_type == "supervisory_oversight"
+    assert sup_entry.hours_instructed == 8.0
+    assert sup_entry.bilateral_attestation.supervised_practitioner_trade_id == "CTP-APP-2026-0884"
+    
+    # 3. Bilateral cross-matching validation
+    valid, err = TradeKeyManager.verify_bilateral_ledger_match(
+        apprentice_entry=signed_app_entry,
+        supervisory_entry=sup_entry,
+        supervisor_public_key=sup_pub,
+        apprentice_prev_hash=GENESIS_HASH
+    )
+    assert valid is True
+    assert err is None
+    
+    # 4. Tampering detection: if apprentice hours are altered, cross-match must fail
+    signed_app_entry.runtime_execution.hours_logged = 12.0
+    valid_tampered, err_tampered = TradeKeyManager.verify_bilateral_ledger_match(
+        apprentice_entry=signed_app_entry,
+        supervisory_entry=sup_entry,
+        supervisor_public_key=sup_pub,
+        apprentice_prev_hash=GENESIS_HASH
+    )
+    assert valid_tampered is False
+    assert "Bilateral hash mismatch" in err_tampered
+
+
 
