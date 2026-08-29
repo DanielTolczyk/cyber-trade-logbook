@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Cybersecurity Trade Logbook - Universal Digital Ledger</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0ea5e9">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- Top Sticky Header -->
+  <header class="top-header">
+    <div class="brand-wrap">
+      <div class="brand-badge">CTP</div>
+      <span class="brand-title">Trade Logbook</span>
+    </div>
+    <div class="user-profile-badge">
+      <span class="tier-tag" id="header-tier">Tier 1 Apprentice</span>
+    </div>
+  </header>
+  <!-- Persistent Demo Banner (Visible in Demo Mode) -->
+  <div id="demo-mode-banner" class="demo-banner" style="display:none;">
+    <span>DEMO MODE ACTIVE: Sample Apprentice Data (Non-Binding)</span>
+    <div class="demo-banner-actions">
+      <button id="btn-demo-reload" class="demo-btn-sm">Reload Sample</button>
+      <button id="btn-demo-exit" class="demo-btn-sm">Exit to Production</button>
+    </div>
+  </div>
+
+
+  <!-- Main App Views -->
+  <main class="container">
+
+    <!-- VIEW 1: DASHBOARD -->
+    <section id="view-dashboard" class="view-section active">
+      <div class="hero-card">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+          <div>
+            <h2 style="font-size:18px; font-weight:800;">Operational Competency Ledger</h2>
+            <p style="color:var(--text-secondary); font-size:12px;">Verified OJT Runtime & Licensure Trajectory</p>
+          </div>
+          <span class="brand-badge" id="hero-wage-standing">50% RJPB</span>
+        </div>
+
+        <div class="hero-stats-grid">
+          <div class="stat-box">
+            <div class="stat-val highlight" id="hero-total-hours">0.0 hrs</div>
+            <div class="stat-lbl">Effective OJT</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-val" id="hero-target-pct">0%</div>
+            <div class="stat-lbl">8k Target</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-val" id="hero-verified-hours">0.0 hrs</div>
+            <div class="stat-lbl">Verified</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-val" id="hero-pending-hours">0.0 hrs</div>
+            <div class="stat-lbl">Pending</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Domain Progression Grid -->
+      <h3 style="font-size:14px; text-transform:uppercase; color:var(--text-secondary); margin-bottom:10px;">5 Core Rotational Domains</h3>
+      <div class="domain-grid">
+        <div class="domain-card">
+          <div class="domain-card-header">
+            <strong>D1: Perimeter & Cloud</strong>
+            <span class="domain-badge" id="hours-D1_PERIMETER_CLOUD">0.0 / 1500 hrs</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill fill-d1" id="bar-D1_PERIMETER_CLOUD" style="width: 0%"></div>
+          </div>
+        </div>
+
+        <div class="domain-card">
+          <div class="domain-card-header">
+            <strong>D2: SOC & Detection</strong>
+            <span class="domain-badge" id="hours-D2_SYSTEM_HYGIENE">0.0 / 2000 hrs</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill fill-d2" id="bar-D2_SYSTEM_HYGIENE" style="width: 0%"></div>
+          </div>
+        </div>
+
+        <div class="domain-card">
+          <div class="domain-card-header">
+            <strong>D3: Identity & IAM</strong>
+            <span class="domain-badge" id="hours-D3_IDENTITY_ACCESS">0.0 / 1500 hrs</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill fill-d3" id="bar-D3_IDENTITY_ACCESS" style="width: 0%"></div>
+          </div>
+        </div>
+
+        <div class="domain-card">
+          <div class="domain-card-header">
+            <strong>D4: Vulnerability Mgmt</strong>
+            <span class="domain-badge" id="hours-D4_VULN_MANAGEMENT">0.0 / 1500 hrs</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill fill-d4" id="bar-D4_VULN_MANAGEMENT" style="width: 0%"></div>
+          </div>
+        </div>
+
+        <div class="domain-card">
+          <div class="domain-card-header">
+            <strong>D5: Defensive GRC</strong>
+            <span class="domain-badge" id="hours-D5_DEFENSIVE_GRC">0.0 / 1500 hrs</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill fill-d5" id="bar-D5_DEFENSIVE_GRC" style="width: 0%"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Entries -->
+
+    <!-- VIEW 2: LOG DIGITAL HOURS -->
+    <section id="view-log" class="view-section">
+      <div class="card">
+        <h2 class="card-title">Log Operational Runtime</h2>
+        <form id="form-digital-entry">
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Shift Date</label>
+              <input type="date" id="entry-date" class="form-control" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Duration (Hours)</label>
+              <input type="number" step="0.25" min="0.25" max="24" id="entry-hours" class="form-control" placeholder="4.5" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Core Rotational Domain</label>
+              <select id="entry-domain" class="form-control form-select" required>
+                <option value="D1_PERIMETER_CLOUD">Domain 1: Perimeter, Cloud & Network Defense</option>
+                <option value="D2_SYSTEM_HYGIENE">Domain 2: Detection Engineering & Incident Triage (SOC)</option>
+                <option value="D3_IDENTITY_ACCESS">Domain 3: Identity, Credential & Access Management (IAM)</option>
+                <option value="D4_VULN_MANAGEMENT">Domain 4: Vulnerability & Attack Surface Management</option>
+                <option value="D5_DEFENSIVE_GRC">Domain 5: Defensive Governance, Risk & Audit (GRC)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Sub-Domain Task</label>
+              <select id="entry-subdomain" class="form-control form-select">
+                <option value="LIVE_ALERT_TRIAGE">Live Alert Triage (SOC)</option>
+                <option value="SIEM_RULE_AUTHORING">SIEM / Detection Engineering</option>
+                <option value="FIREWALL_WAF">Firewall / WAF Hardening</option>
+                <option value="MICROSEGMENTATION">Microsegmentation</option>
+                <option value="PAM_GOVERNANCE">PAM / Identity Provisioning</option>
+                <option value="PATCH_VERIFICATION">Patch Verification Testing</option>
+                <option value="CONTROL_TESTING">Control Implementation Testing</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">NICE Work Role ID</label>
+              <select id="entry-workrole" class="form-control form-select">
+                <option value="PR-CDA-001">PR-CDA-001: Cyber Defense Analyst (SOC)</option>
+                <option value="PR-CDO-001">PR-CDO-001: Cyber Defense Infrastructure Support</option>
+                <option value="PR-CIR-001">PR-CIR-001: Incident Responder</option>
+                <option value="SP-ARC-001">SP-ARC-001: Security Architect</option>
+                <option value="PR-VAM-001">PR-VAM-001: Vulnerability Assessment Analyst</option>
+                <option value="OV-MGT-001">OV-MGT-001: Policy & Strategy Planner</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Environment Type</label>
+              <select id="entry-env" class="form-control form-select">
+                <option value="Enterprise_Production">Enterprise Production</option>
+                <option value="Cloud_Infrastructure">Cloud Multi-Tenant</option>
+                <option value="Range_Lab">Accredited Cyber Range / Simulation Lab</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Artifact Verification Type</label>
+              <select id="entry-artifact-type" class="form-control form-select">
+                <option value="git_commit_hash">Git Commit SHA</option>
+                <option value="change_ticket_id">Change Ticket / CAB ID</option>
+                <option value="incident_record_id">Sanitized Incident ID</option>
+                <option value="rule_hash">Detection Rule Hash (Sigma/YARA)</option>
+                <option value="pipeline_run_hash">CI/CD Pipeline Run Hash</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Artifact Reference / Hash</label>
+              <input type="text" id="entry-artifact-ref" class="form-control" placeholder="CR-894102-SEC or sha256:..." required>
+            </div>
+            <div class="form-group full-width">
+              <label class="form-label">Sanitized Summary (Zero PII / Zero Sensitive Data)</label>
+              <textarea id="entry-summary" class="form-control" rows="2" placeholder="Implemented WAF rate-limiting rule on public gateway..." required></textarea>
+              <p class="form-hint">Zero-Knowledge Guardrail: Omit internal IP addresses, client names, and unredacted exploit payloads.</p>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary btn-block" style="margin-top:14px;">Save Operational Entry</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- VIEW 3: TRANSCRIBE PHYSICAL LOGBOOK -->
+    <section id="view-physical" class="view-section">
+      <div class="card">
+        <h2 class="card-title">Transcribe Physical Bound Ledger</h2>
+        <p style="color:var(--text-secondary); font-size:12px; margin-bottom:14px;">
+          For hours logged inside classified SCIFs, air-gapped enclaves, or offline defense zones.
+        </p>
+        <form id="form-physical-entry">
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Physical Book Serial No.</label>
+              <input type="text" id="phys-book-serial" class="form-control" placeholder="JATC-LOG-2026-00441" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Page Number</label>
+              <input type="number" min="1" id="phys-page-num" class="form-control" placeholder="42" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Line Number</label>
+              <input type="number" min="1" max="50" id="phys-line-num" class="form-control" placeholder="3" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Shift Date</label>
+              <input type="date" id="phys-date" class="form-control" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Hours Logged</label>
+              <input type="number" step="0.25" min="0.25" max="24" id="phys-hours" class="form-control" placeholder="6.0" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Core Rotational Domain</label>
+              <select id="phys-domain" class="form-control form-select" required>
+                <option value="D1_PERIMETER_CLOUD">Domain 1: Perimeter & Cloud</option>
+                <option value="D2_SYSTEM_HYGIENE">Domain 2: Detection & SOC</option>
+                <option value="D3_IDENTITY_ACCESS">Domain 3: IAM & Credentials</option>
+                <option value="D4_VULN_MANAGEMENT">Domain 4: Vulnerability Mgmt</option>
+                <option value="D5_DEFENSIVE_GRC">Domain 5: Defensive GRC</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">NICE Work Role ID</label>
+              <select id="phys-workrole" class="form-control form-select">
+                <option value="PR-CDO-001">PR-CDO-001: Defense Infrastructure</option>
+                <option value="PR-CDA-001">PR-CDA-001: Cyber Defense Analyst</option>
+                <option value="SP-ARC-001">SP-ARC-001: Security Architect</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Supervisor Name & Title</label>
+              <input type="text" id="phys-supervisor-name" class="form-control" placeholder="Marcus Vance, Journeyman" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Supervisor License ID</label>
+              <input type="text" id="phys-supervisor-id" class="form-control" placeholder="CTP-JRN-2024-0192" required>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-secondary btn-block" style="margin-top:14px;">Save Physical Book Transcription</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- VIEW 4: SUPERVISOR SIGN-OFF -->
+    <section id="view-supervisor" class="view-section">
+      <div class="card">
+        <h2 class="card-title">Supervisor Attestation Queue</h2>
+        <p style="color:var(--text-secondary); font-size:12px; margin-bottom:14px;">
+          Supervising Journeymen: Review pending apprentice runtime batches and sign with Trade Key.
+        </p>
+        <div id="supervisor-review-queue"></div>
+      </div>
+    </section>
+
+    <!-- VIEW 5: EXPORT & JATC SUBMISSION -->
+    <section id="view-export" class="view-section">
+      <div class="card">
+        <h2 class="card-title">JATC Submissions & Actuarial Feeds</h2>
+        <p style="color:var(--text-secondary); font-size:12px; margin-bottom:14px;">
+          Generate formal audit binders for Board wage evaluations, zero-knowledge telemetry feeds for cyber insurers, or backup personal archives.
+        </p>
+        <div style="display:flex; flex-direction:column; gap:12px;">
+          <button class="btn btn-primary" onclick="window.print()">Print Official JATC Audit Binder (PDF)</button>
+          <button class="btn btn-secondary" onclick="alert('Exported zero-knowledge underwriter attestation JSON feed.')">Export Actuarial JSON Feed</button>
+          <button class="btn btn-secondary" onclick="alert('Exported full encrypted logbook vault.')">Backup Full Logbook Vault (JSON)</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- VIEW 6: SETTINGS -->
+    <section id="view-settings" class="view-section">
+      <div class="card">
+        <h2 class="card-title">Practitioner Profile & Trade Keys</h2>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Full Name</label>
+            <input type="text" id="prof-name" class="form-control" value="Jane Doe">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Trade Registration ID</label>
+            <input type="text" id="prof-trade-id" class="form-control" value="CTP-APP-2026-0884">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Supervisor License ID</label>
+            <input type="text" id="prof-sup-id" class="form-control" value="CTP-JRN-2024-0192">
+          </div>
+          <div class="form-group">
+            <label class="form-label">PLA Hour Credit (Max 4,000)</label>
+            <input type="number" id="prof-pla" class="form-control" value="1000">
+          </div>
+        </div>
+      </div>
+
+      <!-- Demo Studio & Safe Vault Reset Card -->
+      <div class="card" style="margin-top:16px;">
+        <h2 class="card-title">Interactive Demo Studio & Vault Safety</h2>
+        <p style="color:var(--text-secondary); font-size:12px; margin-bottom:14px;">
+          Evaluate the logbook with pre-populated sample apprentice data or perform a safe vault purge.
+        </p>
+        <div style="display:flex; flex-wrap:wrap; gap:10px;">
+          <button id="btn-load-demo" class="btn btn-secondary">Load Sample Demo Data (3,400 hrs)</button>
+          <button id="btn-purge-vault" class="btn btn-danger">Purge Active Vault</button>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- Mobile Bottom Navigation -->
+  <nav class="bottom-nav">
+    <button class="nav-item active" data-view="view-dashboard">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+      <span>Dashboard</span>
+    </button>
+    <button class="nav-item" data-view="view-log">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+      <span>Log Hours</span>
+    </button>
+    <button class="nav-item" data-view="view-physical">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+      <span>Physical</span>
+    </button>
+    <button class="nav-item" data-view="view-supervisor">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><polyline points="17 11 19 13 23 9"></polyline></svg>
+      <span>Supervisor</span>
+    </button>
+    <button class="nav-item" data-view="view-export">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+      <span>Export</span>
+    </button>
+    <button class="nav-item" data-view="view-settings">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+      <span>Settings</span>
+    </button>
+  </nav>
+
+  <script src="app.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').catch(err => {
+          console.log('ServiceWorker registration skipped in dev mode:', err);
+        });
+      });
+    }
+  </script>
+</body>
+</html>
+

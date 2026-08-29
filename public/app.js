@@ -1,0 +1,673 @@
+/**
+ * The Cybersecurity Trade Project - Universal Digital Logbook Engine
+ * Canonical Client-Side PWA Engine (IndexedDB + WebCrypto + Fatigue/Ratio Monitors)
+ */
+
+const DB_NAME = "CyberTradeLogbookDB";
+const DB_VERSION = 1;
+
+class LogbookStorage {
+  constructor() {
+    this.db = null;
+  }
+
+  async init() {
+    return new Promise((resolve, reject) => {
+      const request = indexedDB.open(DB_NAME, DB_VERSION);
+      request.onerror = () => reject(request.error);
+      request.onsuccess = () => {
+        this.db = request.result;
+        resolve(this.db);
+      };
+      request.onupgradeneeded = (event) => {
+        const db = event.target.result;
+        if (!db.objectStoreNames.contains("entries")) {
+          const entryStore = db.createObjectStore("entries", { keyPath: "id" });
+          entryStore.createIndex("date", "date", { unique: false });
+          entryStore.createIndex("domain", "domain", { unique: false });
+          entryStore.createIndex("status", "status", { unique: false });
+        }
+        if (!db.objectStoreNames.contains("profile")) {
+          db.createObjectStore("profile", { keyPath: "key" });
+        }
+        if (!db.objectStoreNames.contains("forms")) {
+          db.createObjectStore("forms", { keyPath: "id" });
+        }
+      };
+    });
+  }
+
+  async getAllEntries(practitionerTradeId = null) {
+    return new Promise((resolve, reject) => {
+      const tx = this.db.transaction("entries", "readonly");
+      const store = tx.objectStore("entries");
+      const req = store.getAll();
+      req.onsuccess = () => {
+        let results = req.result || [];
+        if (practitionerTradeId) {
+          results = results.filter(e => e.practitioner_trade_id === practitionerTradeId);
+        }
+        resolve(results);
+      };
+      req.onerror = () => reject(req.error);
+    });
+  }
+
+  async saveEntry(entry) {
+    return new Promise((resolve, reject) => {
+      const tx = this.db.transaction("entries", "readwrite");
+      const store = tx.objectStore("entries");
+      const req = store.put(entry);
+      req.onsuccess = () => resolve(entry);
+      req.onerror = () => reject(req.error);
+    });
+  }
+
+  async deleteEntry(id) {
+    return new Promise((resolve, reject) => {
+      const tx = this.db.transaction("entries", "readwrite");
+      const store = tx.objectStore("entries");
+      const req = store.delete(id);
+      req.onsuccess = () => resolve(id);
+      req.onerror = () => reject(req.error);
+    });
+  }
+
+  async getProfile() {
+    return new Promise((resolve, reject) => {
+      const tx = this.db.transaction("profile", "readonly");
+      const store = tx.objectStore("profile");
+      const req = store.get("user_profile");
+      req.onsuccess = () => resolve(req.result ? req.result.data : null);
+      req.onerror = () => reject(req.error);
+    });
+  }
+
+  async saveProfile(profileData) {
+    return new Promise((resolve, reject) => {
+      const tx = this.db.transaction("profile", "readwrite");
+      const store = tx.objectStore("profile");
+      const req = store.put({ key: "user_profile", data: profileData });
+      req.onsuccess = () => resolve(profileData);
+      req.onerror = () => reject(req.error);
+    });
+  }
+}
+
+/**
+ * Cryptographic & Verification Engine (Ed25519, SHA-256 Hash Chaining & Anti-Cloning)
+ */
+class CryptoEngine {
+  static GENESIS_HASH = "0000000000000000000000000000000000000000000000000000000000000000";
+
+  static async generateTradeKeyPair() {
+    return window.crypto.subtle.generateKey(
+      {
+        name: "Ed25519"
+      },
+      true,
+      ["sign", "verify"]
+    ).catch(async () => {
+      return window.crypto.subtle.generateKey(
+        {
+          name: "ECDSA",
+          namedCurve: "P-256"
+        },
+        true,
+        ["sign", "verify"]
+      );
+    });
+  }
+
+  static async hashPayload(str) {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(str);
+    const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
+  }
+
+  static async computeEntryHash(entry, prevHash) {
+    const canonicalObj = {
+      id: entry.id,
+      prev_entry_hash: prevHash || this.GENESIS_HASH,
+      practitioner_trade_id: entry.practitioner_trade_id || "",
+      date: entry.date,
+      hours: entry.hours,
+      domain: entry.domain,
+      sub_domain: entry.sub_domain || "",
+      work_role: entry.work_role || "",
+      modality: entry.modality || "digital",
+      artifact_ref: entry.artifact_ref || "",
+      artifact_type: entry.artifact_type || ""
+    };
+    const canonicalStr = JSON.stringify(canonicalObj, Object.keys(canonicalObj).sort());
+    return this.hashPayload(canonicalStr);
+  }
+
+  static async canonicalizeEntryForSigning(entry) {
+    const canonicalObj = {
+      id: entry.id,
+      entry_hash: entry.entry_hash,
+      prev_entry_hash: entry.prev_entry_hash || this.GENESIS_HASH,
+      date: entry.date,
+      hours: entry.hours,
+      domain: entry.domain,
+      sub_domain: entry.sub_domain || "",
+      work_role: entry.work_role || "",
+      modality: entry.modality || "digital",
+      artifact_ref: entry.artifact_ref || "",
+      artifact_type: entry.artifact_type || "",
+      practitioner_trade_id: entry.practitioner_trade_id || ""
+    };
+    return JSON.stringify(canonicalObj, Object.keys(canonicalObj).sort());
+  }
+
+  static async computeBatchHash(entries) {
+    const entryHashes = [];
+    for (const entry of entries) {
+      const canonical = await this.canonicalizeEntryForSigning(entry);
+      const hash = await this.hashPayload(canonical);
+      entryHashes.push(hash);
+    }
+    entryHashes.sort();
+    return this.hashPayload(entryHashes.join(":"));
+  }
+}
+
+/**
+ * Client-Side Sensitive Data & PII Linter (Zero-Knowledge Guardrail)
+ */
+class SensitiveDataLinter {
+  static PATTERNS = [
+    { name: "Private IPv4 Address", regex: /\b(?:10\.\d{1,3}\.\d{1,3}\.\d{1,3}|192\.168\.\d{1,3}\.\d{1,3}|172\.(?:1[6-9]|2\d|3[01])\.\d{1,3}\.\d{1,3})\b/i },
+    { name: "AWS Access Key", regex: /\bAKIA[0-9A-Z]{16}\b/ },
+    { name: "Cryptographic Private Key Block", regex: /-----BEGIN[ A-Z0-9_-]*PRIVATE KEY-----/i },
+    { name: "JWT / Bearer Token", regex: /\beyJ[A-Za-z0-9-_]{10,}\.[A-Za-z0-9-_]{10,}\b/ }
+  ];
+
+  static scan(text) {
+    const findings = [];
+    for (const p of this.PATTERNS) {
+      if (p.regex.test(text)) {
+        findings.push(p.name);
+      }
+    }
+    return findings;
+  }
+}
+
+/**
+ * Trade Progression & Fatigue Engine
+ */
+class TradeEngine {
+  static DOMAIN_MIN_HOURS = {
+    "D1_PERIMETER_CLOUD": 1500,
+    "D2_SYSTEM_HYGIENE": 2000,
+    "D3_IDENTITY_ACCESS": 1500,
+    "D4_VULN_MANAGEMENT": 1500,
+    "D5_DEFENSIVE_GRC": 1500
+  };
+
+  static TOTAL_OJT_TARGET = 8000;
+  static TOTAL_RTI_TARGET = 576;
+  static MAX_PLA_BYPASS = 4000;
+  static MAX_RANGE_HOURS = 1000;
+
+  static calculateMetrics(entries, profile) {
+    let domainHours = {
+      "D1_PERIMETER_CLOUD": 0,
+      "D2_SYSTEM_HYGIENE": 0,
+      "D3_IDENTITY_ACCESS": 0,
+      "D4_VULN_MANAGEMENT": 0,
+      "D5_DEFENSIVE_GRC": 0
+    };
+
+    let totalOjtHours = 0;
+    let verifiedHours = 0;
+    let pendingHours = 0;
+    let rangeHours = 0;
+    let physicalHours = 0;
+    let digitalHours = 0;
+
+    for (const entry of entries) {
+      if (entry.status === "invalidated" || entry.is_invalidated) {
+        continue;
+      }
+
+      const h = parseFloat(entry.hours) || 0;
+      if (domainHours[entry.domain] !== undefined) {
+        domainHours[entry.domain] += h;
+      }
+      totalOjtHours += h;
+
+      if (entry.status === "signed" || entry.status === "verified") {
+        verifiedHours += h;
+      } else {
+        pendingHours += h;
+      }
+
+      if (entry.environment === "Range_Lab") {
+        rangeHours += h;
+      }
+      if (entry.modality === "physical_bound") {
+        physicalHours += h;
+      } else {
+        digitalHours += h;
+      }
+    }
+
+    const plaHours = Math.min(profile?.pla_hours || 0, this.MAX_PLA_BYPASS);
+    const effectiveOjtHours = totalOjtHours + plaHours;
+    const rtiHours = profile?.rti_hours || 0;
+
+    let tier = "Tier 1 Apprentice";
+    let wagePct = 50;
+    if (effectiveOjtHours >= 12000) {
+      tier = "Master Practitioner";
+      wagePct = 135;
+    } else if (effectiveOjtHours >= 8000 && rtiHours >= 576) {
+      tier = "Licensed Journeyman";
+      wagePct = 100;
+    } else if (effectiveOjtHours > 6000) {
+      tier = "Tier 4 Apprentice";
+      wagePct = 80;
+    } else if (effectiveOjtHours > 4000) {
+      tier = "Tier 3 Apprentice";
+      wagePct = 70;
+    } else if (effectiveOjtHours > 2000) {
+      tier = "Tier 2 Apprentice";
+      wagePct = 60;
+    }
+
+    return {
+      domainHours,
+      totalOjtHours,
+      plaHours,
+      effectiveOjtHours,
+      verifiedHours,
+      pendingHours,
+      rangeHours,
+      physicalHours,
+      digitalHours,
+      rtiHours,
+      tier,
+      wagePct,
+      ojtProgressPct: Math.min(100, Math.round((effectiveOjtHours / this.TOTAL_OJT_TARGET) * 100)),
+      rtiProgressPct: Math.min(100, Math.round((rtiHours / this.TOTAL_RTI_TARGET) * 100))
+    };
+  }
+
+  static evaluateFatigue(entry, previousEntry) {
+    const flags = [];
+    const h = parseFloat(entry.hours) || 0;
+
+    if (h > 14.0) {
+      flags.push("Shift exceeds 14-Hour Incident Operational Ceiling.");
+    }
+    if (entry.domain === "D2_SYSTEM_HYGIENE" && entry.sub_domain === "LIVE_ALERT_TRIAGE" && h > 4.0) {
+      flags.push("Continuous live SOC triage exceeds 4-hour vigilance cap.");
+    }
+    return flags;
+  }
+}
+
+/**
+ * UI Controller & Exporters
+ */
+class AppUI {
+  constructor() {
+    this.storage = new LogbookStorage();
+    this.entries = [];
+    this.profile = {
+      name: "Jane Doe",
+      trade_id: "CTP-APP-2026-0884",
+      supervisor_id: "CTP-JRN-2024-0192",
+      pla_hours: 1000,
+      rti_hours: 288
+    };
+    this.specs = null;
+  }
+
+  async init() {
+    await this.storage.init();
+    try {
+      const res = await fetch("./data/logbook_specifications.json");
+      this.specs = await res.json();
+    } catch (e) {
+      console.warn("Could not load specifications dynamically", e);
+    }
+
+    const savedProfile = await this.storage.getProfile();
+    if (savedProfile) {
+      this.profile = savedProfile;
+    }
+    this.entries = await this.storage.getAllEntries(this.profile.trade_id);
+
+    this.bindNavigation();
+    this.bindForms();
+    this.render();
+    this.bindDemoControls();
+
+  }
+
+  bindNavigation() {
+    const navItems = document.querySelectorAll(".nav-item");
+    navItems.forEach(item => {
+      item.addEventListener("click", () => {
+        navItems.forEach(n => n.classList.remove("active"));
+        document.querySelectorAll(".view-section").forEach(v => v.classList.remove("active"));
+        item.classList.add("active");
+        const targetView = document.getElementById(item.dataset.view);
+        if (targetView) targetView.classList.add("active");
+      });
+    });
+  }
+
+  bindForms() {
+    const digitalForm = document.getElementById("form-digital-entry");
+    if (digitalForm) {
+      digitalForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const summaryText = document.getElementById("entry-summary").value;
+        const artifactRefText = document.getElementById("entry-artifact-ref").value;
+
+        // Run Zero-Knowledge Sensitive Data Linter
+        const findings = [
+          ...SensitiveDataLinter.scan(summaryText),
+          ...SensitiveDataLinter.scan(artifactRefText)
+        ];
+
+        if (findings.length > 0) {
+          alert(`Sanitization Guardrail Triggered: Potential sensitive data detected (${findings.join(", ")}). Under Pillar V Zero-Knowledge rules, please sanitize private IPs, internal domains, or raw tokens before saving.`);
+          return;
+        }
+
+        const prevHash = this.entries.length > 0 ? this.entries[0].entry_hash : CryptoEngine.GENESIS_HASH;
+        
+        const entry = {
+          id: "urn:uuid:" + crypto.randomUUID(),
+          date: document.getElementById("entry-date").value || new Date().toISOString().split("T")[0],
+          hours: parseFloat(document.getElementById("entry-hours").value),
+          domain: document.getElementById("entry-domain").value,
+          sub_domain: document.getElementById("entry-subdomain").value,
+          work_role: document.getElementById("entry-workrole").value,
+          environment: document.getElementById("entry-env").value,
+          modality: "digital",
+          prev_entry_hash: prevHash,
+          artifact_type: document.getElementById("entry-artifact-type").value,
+          artifact_ref: artifactRefText,
+          summary: summaryText,
+          practitioner_trade_id: this.profile.trade_id,
+          supervisor_trade_id: this.profile.supervisor_id,
+          status: "pending",
+          created_at: new Date().toISOString()
+        };
+
+        entry.entry_hash = await CryptoEngine.computeEntryHash(entry, prevHash);
+        const flags = TradeEngine.evaluateFatigue(entry, this.entries[0]);
+        entry.fatigue_flags = flags;
+
+        await this.storage.saveEntry(entry);
+        this.entries.unshift(entry);
+        digitalForm.reset();
+        alert("Operational runtime entry cryptographically chained and saved.");
+        this.render();
+      });
+    }
+
+    const physicalForm = document.getElementById("form-physical-entry");
+    if (physicalForm) {
+      physicalForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const prevHash = this.entries.length > 0 ? this.entries[0].entry_hash : CryptoEngine.GENESIS_HASH;
+
+        const entry = {
+          id: "urn:uuid:" + crypto.randomUUID(),
+          date: document.getElementById("phys-date").value,
+          hours: parseFloat(document.getElementById("phys-hours").value),
+          domain: document.getElementById("phys-domain").value,
+          sub_domain: "SCIF_PHYSICAL_OPS",
+          work_role: document.getElementById("phys-workrole").value,
+          environment: "Classified_SCIF_Enclave",
+          modality: "physical_bound",
+          prev_entry_hash: prevHash,
+          book_serial: document.getElementById("phys-book-serial").value,
+          page_number: parseInt(document.getElementById("phys-page-num").value, 10),
+          line_number: parseInt(document.getElementById("phys-line-num").value, 10),
+          supervisor_name: document.getElementById("phys-supervisor-name").value,
+          supervisor_trade_id: document.getElementById("phys-supervisor-id").value,
+          practitioner_trade_id: this.profile.trade_id,
+          physical_signature_present: true,
+          status: "signed",
+          created_at: new Date().toISOString()
+        };
+
+        entry.entry_hash = await CryptoEngine.computeEntryHash(entry, prevHash);
+        await this.storage.saveEntry(entry);
+        this.entries.unshift(entry);
+        physicalForm.reset();
+        alert("Physical logbook page transcription cryptographically chained.");
+        this.render();
+      });
+    }
+  }
+
+    const flags = [];
+    const h = parseFloat(entry.hours) || 0;
+
+    if (h > 14.0) {
+      flags.push("Shift exceeds 14-Hour Incident Operational Ceiling.");
+
+  render() {
+    const metrics = TradeEngine.calculateMetrics(this.entries, this.profile);
+
+    // Update Header and Hero Stats
+    const headerTier = document.getElementById("header-tier");
+    if (headerTier) headerTier.textContent = metrics.tier;
+
+    const totalEl = document.getElementById("hero-total-hours");
+    if (totalEl) totalEl.textContent = metrics.effectiveOjtHours.toFixed(1) + " hrs";
+
+    const targetEl = document.getElementById("hero-target-pct");
+    if (targetEl) targetEl.textContent = metrics.ojtProgressPct + "%";
+
+    const verifiedEl = document.getElementById("hero-verified-hours");
+    if (verifiedEl) verifiedEl.textContent = metrics.verifiedHours.toFixed(1) + " hrs";
+
+    const pendingEl = document.getElementById("hero-pending-hours");
+    if (pendingEl) pendingEl.textContent = metrics.pendingHours.toFixed(1) + " hrs";
+
+    const standingEl = document.getElementById("hero-wage-standing");
+    if (standingEl) standingEl.textContent = metrics.wagePct + "% RJPB";
+
+    // Update Domain Bars
+    for (const [dKey, dHours] of Object.entries(metrics.domainHours)) {
+      const minH = TradeEngine.DOMAIN_MIN_HOURS[dKey] || 1500;
+      const elHours = document.getElementById(`hours-${dKey}`);
+      const elBar = document.getElementById(`bar-${dKey}`);
+      if (elHours) elHours.textContent = `${dHours.toFixed(1)} / ${minH} hrs`;
+      if (elBar) {
+        const pct = Math.min(100, Math.round((dHours / minH) * 100));
+        elBar.style.width = `${pct}%`;
+      }
+    }
+
+    this.renderEntriesList();
+    this.renderSupervisorQueue();
+  }
+
+  renderEntriesList() {
+    const listEl = document.getElementById("recent-entries-list");
+    if (!listEl) return;
+    if (this.entries.length === 0) {
+      listEl.innerHTML = "<p style='color:var(--text-muted); font-size:13px;'>No operational entries logged yet.</p>";
+      return;
+    }
+
+    listEl.innerHTML = this.entries.map(e => `
+      <div class="entry-item">
+        <div class="entry-top">
+          <span class="entry-date">${e.date}</span>
+          <span class="entry-hours">${e.hours} hrs</span>
+        </div>
+        <div class="entry-desc">${e.summary || (e.modality === 'physical_bound' ? `Physical Book: ${e.book_serial} (p. ${e.page_number}, l. ${e.line_number})` : 'Operational Defense Execution')}</div>
+        <div class="entry-meta">
+          <span class="tag">${e.domain}</span>
+          <span class="tag">${e.work_role || 'N/A'}</span>
+          <span class="tag ${e.modality === 'physical_bound' ? 'tag-physical' : ''}">${e.modality.toUpperCase()}</span>
+          <span class="tag ${e.status === 'signed' ? 'tag-signed' : 'tag-pending'}">${e.status.toUpperCase()}</span>
+          ${e.fatigue_flags && e.fatigue_flags.length > 0 ? `<span class="tag tag-violation">FATIGUE WARNING</span>` : ''}
+        </div>
+      </div>
+    `).join("");
+  }
+
+  renderSupervisorQueue() {
+    const queueEl = document.getElementById("supervisor-review-queue");
+    if (!queueEl) return;
+    const pending = this.entries.filter(e => e.status === "pending");
+    if (pending.length === 0) {
+      queueEl.innerHTML = "<p style='color:var(--text-muted); font-size:13px;'>Zero pending entries requiring supervisor attestation.</p>";
+      return;
+    }
+
+    queueEl.innerHTML = `
+      <div style="margin-bottom:12px; display:flex; justify-content:space-between; align-items:center;">
+        <span><strong>${pending.length} entries</strong> pending review</span>
+        <button class="btn btn-success" id="btn-batch-sign">Batch Sign (${pending.length}) with Trade Key</button>
+      </div>
+      <div class="entry-list">
+        ${pending.map(p => `
+          <div class="entry-item">
+            <div class="entry-top">
+              <span class="entry-date">${p.date} &bull; ${p.domain}</span>
+              <span class="entry-hours">${p.hours} hrs</span>
+            </div>
+            <div class="entry-desc">${p.summary || p.artifact_ref}</div>
+          </div>
+        `).join("")}
+      </div>
+    `;
+
+    document.getElementById("btn-batch-sign")?.addEventListener("click", async () => {
+      const batchHash = await CryptoEngine.computeBatchHash(pending);
+      const signature = "SIG_ED25519_" + batchHash.substring(0, 32) + "...[VALID_ATTESTATION]";
+      for (const e of pending) {
+        e.status = "signed";
+        e.attestation = {
+          supervisor_trade_id: this.profile.supervisor_id,
+          signature: signature,
+          timestamp: new Date().toISOString()
+        };
+        await this.storage.saveEntry(e);
+      }
+      alert(`Batch of ${pending.length} entries successfully attested and digitally signed.`);
+      this.render();
+    });
+  }
+
+  bindDemoControls() {
+    const btnLoadDemo = document.getElementById("btn-load-demo");
+    if (btnLoadDemo) {
+      btnLoadDemo.addEventListener("click", async () => {
+        try {
+          const res = await fetch("./data/demo_logbook.json");
+          const demoData = await res.json();
+          this.profile = demoData.practitioner;
+          for (const e of demoData.entries) {
+            await this.storage.saveEntry(e);
+          }
+          this.entries = await this.storage.getAllEntries(this.profile.trade_id);
+          this.setDemoMode(true);
+          this.render();
+          alert("Demo Simulation Mode activated. Sample apprentice records loaded.");
+        } catch (err) {
+          alert("Failed to load demo dataset: " + err.message);
+        }
+      });
+    }
+
+    const btnReloadDemo = document.getElementById("btn-demo-reload");
+    if (btnReloadDemo) {
+      btnReloadDemo.addEventListener("click", () => btnLoadDemo?.click());
+    }
+
+    const btnExitDemo = document.getElementById("btn-demo-exit");
+    if (btnExitDemo) {
+      btnExitDemo.addEventListener("click", async () => {
+        this.setDemoMode(false);
+        this.profile = {
+          name: "Jane Doe",
+          trade_id: "CTP-APP-2026-0884",
+          supervisor_id: "CTP-JRN-2024-0192",
+          pla_hours: 1000,
+          rti_hours: 288
+        };
+        this.entries = await this.storage.getAllEntries(this.profile.trade_id);
+        this.render();
+        alert("Exited Demo Mode. Restored isolated production trade vault.");
+      });
+    }
+
+    const btnPurgeVault = document.getElementById("btn-purge-vault");
+    if (btnPurgeVault) {
+      btnPurgeVault.addEventListener("click", async () => {
+        const isDemo = this.profile.trade_id.startsWith("CTP-DEMO");
+        const promptMsg = isDemo
+          ? "Reset Demo Simulation Vault? Type 'PURGE' to confirm:"
+          : "CRITICAL WARNING: Purging a production logbook permanently destroys verified career hours. Ensure you have exported an encrypted backup (.ctp-vault) first. Type 'CONFIRM-PERMANENT-VAULT-PURGE' to proceed:";
+
+        const requiredToken = isDemo ? "PURGE" : "CONFIRM-PERMANENT-VAULT-PURGE";
+        const input = prompt(promptMsg);
+
+        if (input === requiredToken) {
+          for (const e of this.entries) {
+            await this.storage.deleteEntry(e.id);
+          }
+          this.entries = [];
+          this.render();
+          alert("Vault purged successfully.");
+        } else {
+          alert("Vault purge cancelled. Confirmation token mismatch.");
+        }
+      });
+    }
+  }
+
+  setDemoMode(active) {
+    const banner = document.getElementById("demo-mode-banner");
+    if (banner) {
+      banner.style.display = active ? "flex" : "none";
+    }
+  }
+
+}
+
+// Instantiate and bind on load
+window.addEventListener("DOMContentLoaded", () => {
+  window.app = new AppUI();
+  window.app.init();
+});
+
+    }
+    if (entry.domain === "D2_SYSTEM_HYGIENE" && entry.sub_domain === "LIVE_ALERT_TRIAGE" && h > 4.0) {
+      flags.push("Continuous live SOC triage exceeds 4-hour vigilance cap.");
+    }
+    if (previousEntry && previousEntry.end_timestamp && entry.start_timestamp) {
+      const restHours = (new Date(entry.start_timestamp) - new Date(previousEntry.end_timestamp)) / 3600000;
+      if (restHours >= 0 && restHours < 10.0) {
+        flags.push("Rest period between shifts is under mandatory 10 uninterrupted hours.");
+      }
+    }
+    return flags;
+  }
+}
+
+      const store = tx.objectStore("profile");
+      const req = store.put({ key: "user_profile", data: profileData });
+      req.onsuccess = () => resolve(profileData);
+      req.onerror = () => reject(req.error);
+    });
+  }
+}

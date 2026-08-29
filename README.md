@@ -1,0 +1,110 @@
+# Cybersecurity Trade Logbook (Universal Digital Ledger)
+
+A privacy-preserving, client-side Progressive Web Application (PWA) and cryptographic verification engine enabling cybersecurity apprentices, Journeymen, and Master Practitioners to maintain portable runtime records under **The Cybersecurity Trade Project** specifications.
+
+---
+
+## 1. Core Capabilities & Architecture
+
+The tool is designed with a **zero-enterprise-footprint** model: the logbook is the statutory personal property of the practitioner, operating completely on personal mobile devices, offline laptops, or within isolated defense enclaves.
+
+### Key Architectural Pillars:
+
+* **Dual-Modality Operational Tracking:**
+  * **Digital Log Entries:** Logs operational runtime hours mapped to NIST NICE Work Roles, core rotational domains (D1 through D5), and sanitized artifact references (`git_commit_hash`, `change_ticket_id`, `incident_record_id`, `rule_hash`).
+  * **Physical Bound Ledger Transcription:** Dedicated rapid entry workflow for recording hours completed in classified facilities (SCIFs) or air-gapped enclaves, capturing physical book serial numbers, page/line coordinates, and supervisor license stamps.
+* **Cryptographic Attestation & Batch Signing:**
+  * Ed25519 Trade Key signing for supervisors to attest to runtime batches without exposing private keys.
+  * WebAuthn and hardware token integration (NFC / FIDO2 security keys) allowing on-device cross-signing with zero USB mass-storage risk.
+* **Statutory Mathematical Enforcement:**
+  * Tracks the 8,000-hour rotational distribution across 5 core domains:
+    * Domain 1: Perimeter, Cloud & Network Defense (1,500 hrs)
+    * Domain 2: Detection Engineering & Incident Triage / SOC (2,000 hrs)
+    * Domain 3: Identity, Credential & Access Management / IAM (1,500 hrs)
+    * Domain 4: Vulnerability & Attack Surface Management (1,500 hrs)
+    * Domain 5: Defensive Governance, Risk & Audit / GRC (1,500 hrs)
+  * Enforces the 4,000-hour (50%) Prior Learning Assessment (PLA) residency cap.
+  * Tracks Related Technical Instruction (RTI) targets (144 hrs/year, 576 hrs total).
+* **Operational Fatigue & Ratio Monitoring:**
+  * Automatically flags shifts exceeding the 14-Hour Incident Operational Ceiling.
+  * Alerts on continuous live SOC alert triage exceeding the 4-Hour Vigilance Cap.
+  * Validates 10-hour uninterrupted rest cycles between emergency operations.
+* **Dual Exporters:**
+  * **JATC Official PDF Audit Binder:** Generates formatted, printable audit binders for quarterly wage step reviews and Journeyman Licensure Exam defenses.
+  * **Zero-Knowledge Actuarial Attestation Feed (JSON):** Produces verified telemetry manifests for cyber liability insurance underwriters without exposing corporate confidential data or practitioner PII.
+
+---
+
+## 2. Directory Structure
+
+```
+cyber-trade-logbook/
+├── public/
+│   ├── data/
+│   │   └── logbook_specifications.json  # Canonical taxonomy & trade rules
+│   ├── index.html                       # Mobile-first responsive PWA UI
+│   ├── styles.css                       # High-contrast CSS & print stylesheet
+│   ├── app.js                           # IndexedDB & WebCrypto client engine
+│   ├── manifest.json                    # Web App manifest for iOS/Android
+│   └── sw.js                            # Service Worker for offline-first execution
+├── src/
+│   └── cyber_trade_logbook/
+│       ├── __init__.py
+│       ├── models.py                    # Canonical Pydantic schemas (RFC compliant)
+│       ├── crypto.py                    # Ed25519 signing, verification & hashing
+│       ├── engine.py                    # 8k domain accumulator & fatigue monitor
+│       └── cli.py                       # Command-line interface (`ctl-logbook`)
+├── tests/
+│   ├── test_models.py                   # Schema integrity tests
+│   ├── test_crypto.py                   # Ed25519 signature tests
+│   └── test_engine.py                   # Domain math, PLA caps & fatigue tests
+├── pyproject.toml                       # Python project configuration (uv)
+└── README.md
+```
+
+---
+
+## 3. Local Development & Testing
+
+### Running the Python Test Suite
+Managed via `uv`:
+```bash
+cd cyber-trade-logbook
+uv run pytest
+```
+
+### Launching the Local Web Dashboard & PWA
+```bash
+uv run python -m http.server 8000 --directory public
+```
+
+
+---
+
+## 4. Member Custody & Backup Responsibility Notice
+
+Under The Cybersecurity Trade Project specifications, your logbook is your statutory personal property. Sponsoring employers, training trusts, and trade unions do not maintain centralized custody of your raw operational logs.
+
+* **Sole Custody:** You are solely responsible for maintaining, preserving, and backing up your personal logbook records.
+* **Mandatory Backup Routine:** Members must export an encrypted vault backup (`.ctp-vault`) at the conclusion of every working week or sprint to personal offline storage, secondary computers, or private encrypted cloud drives.
+* **Separation Safe Harbor:** Sponsoring employers are legally prohibited from withholding or deleting your personal logbook. Maintaining an independent backup protects your accredited career progression against contractual separations, corporate acquisition disputes, or employer IT terminations.
+
+---
+
+## 5. Multi-Device Synchronization & Conflict-Free Merging
+
+To support practitioners working across multiple personal devices (e.g., logging on mobile during shifts and reviewing on desktop at home):
+* **Fast-Forward Ingestion:** Non-conflicting sequential entries fast-forward automatically.
+* **Deterministic Re-Chaining:** Concurrent draft entries are deduplicated by UUID, sorted chronologically, and re-chained to the latest signed block.
+* **Cryptographic Anchor Protection:** Completed supervisor signatures remain permanent, immutable anchors that cannot be overwritten during merges.
+
+---
+
+## 6. Physical Book Intake: JATC Digital Audit Seal Protocol
+
+To eliminate the need to mail paper logbooks or manually re-type thousands of classified shift lines:
+1. **In-Person Inspection:** Apprentice presents their physical bound book to the regional JATC Training Director or appointed Master Examiner.
+2. **Examiner Digital Seal:** The Examiner verifies page ranges, supervisor stamps, and hours, then signs an official `JATCPhysicalAuditSeal` using their authorized Director Trade Key.
+3. **Accredited Milestone:** The seal block is appended to the member's digital ledger and submitted to the Clearinghouse, formally accrediting the physical hours for wage step elevation.
+
+Open `http://localhost:8000` on your mobile device or desktop browser.

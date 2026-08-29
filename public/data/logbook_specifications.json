@@ -1,0 +1,86 @@
+{
+  "version": "1.1.0",
+  "project": "The Cybersecurity Trade Project",
+  "domains": {
+    "D1_PERIMETER_CLOUD": {
+      "code": "D1",
+      "name": "Perimeter, Cloud & Network Defense",
+      "required_ojt_hours": 1500,
+      "sub_domains": ["FIREWALL_WAF", "MICROSEGMENTATION", "CLOUD_HARDENING", "ZERO_TRUST_ANALYSIS"]
+    },
+    "D2_SYSTEM_HYGIENE": {
+      "code": "D2",
+      "name": "Detection Engineering & SOC Triage",
+      "required_ojt_hours": 2000,
+      "sub_domains": ["LIVE_ALERT_TRIAGE", "SIEM_RULE_AUTHORING", "CONTAINMENT", "LOG_TELEMETRY", "CI_CD_HARDENING"]
+    },
+    "D3_IDENTITY_ACCESS": {
+      "code": "D3",
+      "name": "Identity, Credential & Access (IAM)",
+      "required_ojt_hours": 1500,
+      "sub_domains": ["PAM_GOVERNANCE", "DIRECTORY_SERVICES", "KEY_LIFECYCLE", "ACCESS_REVIEW", "MFA_FIDO2"]
+    },
+    "D4_VULN_MANAGEMENT": {
+      "code": "D4",
+      "name": "Vulnerability & Attack Surface Management",
+      "required_ojt_hours": 1500,
+      "sub_domains": ["PATCH_VERIFICATION", "ASSET_DISCOVERY", "CONFIGURATION_AUDIT", "CVE_TRIAGE"]
+    },
+    "D5_DEFENSIVE_GRC": {
+      "code": "D5",
+      "name": "Defensive Governance, Risk & Audit (GRC)",
+      "required_ojt_hours": 1500,
+      "sub_domains": ["CONTROL_TESTING", "AUDIT_VERIFICATION", "POLICY_COMPLIANCE", "NON_CONCURRENCE"]
+    }
+  },
+  "specialty_endorsements": {
+    "SE-MED": { "code": "SE-MED", "name": "Medical Device & Clinical Technology", "wage_adder_pct": 25 },
+    "SE-ICS": { "code": "SE-ICS", "name": "Industrial Control Systems (ICS/SCADA)", "wage_adder_pct": 25 },
+    "SE-DFIR": { "code": "SE-DFIR", "name": "Digital Forensics & Incident Response", "wage_adder_pct": 20 },
+    "SE-OFF": { "code": "SE-OFF", "name": "Offensive Security & Red Teaming", "wage_adder_pct": 20 },
+    "SE-AIML": { "code": "SE-AIML", "name": "AI / ML Security Assurance", "wage_adder_pct": 20 },
+    "SE-CLD": { "code": "SE-CLD", "name": "Cloud Security & Infrastructure", "wage_adder_pct": 15 }
+  },
+  "nice_work_roles": [
+    { "id": "PR-CDO-001", "name": "Cyber Defense Infrastructure Support", "domain": "D1" },
+    { "id": "OM-NET-001", "name": "Network Operations Specialist", "domain": "D1" },
+    { "id": "PR-INF-001", "name": "Information Systems Security Developer", "domain": "D1" },
+    { "id": "PR-CIR-001", "name": "Cyber Defense Incident Responder", "domain": "D2" },
+    { "id": "PR-CDA-001", "name": "Cyber Defense Analyst (SOC)", "domain": "D2" },
+    { "id": "AN-TWA-001", "name": "Threat / Warning Analyst", "domain": "D2" },
+    { "id": "SP-DEV-001", "name": "Software Developer (AppSec / DevSecOps)", "domain": "D2" },
+    { "id": "SP-ARC-001", "name": "Security Architect (IAM / Zero Trust)", "domain": "D3" },
+    { "id": "PR-CDO-002", "name": "Identity & Access Administrator", "domain": "D3" },
+    { "id": "PR-VAM-001", "name": "Vulnerability Assessment Analyst", "domain": "D4" },
+    { "id": "AN-EXP-001", "name": "Exploitation Analyst / Penetration Tester", "domain": "D4" },
+    { "id": "OV-MGT-001", "name": "Cybersecurity Policy & Strategy Planner", "domain": "D5" },
+    { "id": "OV-PMA-001", "name": "Program Manager / Defensive GRC Auditor", "domain": "D5" }
+  ],
+  "artifact_types": [
+    { "type": "git_commit_hash", "label": "Git Commit SHA" },
+    { "type": "change_ticket_id", "label": "Change Ticket / CAB ID" },
+    { "type": "incident_record_id", "label": "Sanitized Incident ID" },
+    { "type": "pipeline_run_hash", "label": "Pipeline / Build Run Hash" },
+    { "type": "rule_hash", "label": "Detection Rule Hash (Sigma/YARA/SIEM)" },
+    { "type": "model_eval_hash", "label": "AI/ML Model Benchmark Hash" },
+    { "type": "guardrail_policy_hash", "label": "AI Guardrail Policy Hash" },
+    { "type": "telemetry_export_token", "label": "Sanitized Telemetry Manifest Token" }
+  ],
+  "standards": {
+    "total_ojt_required_hours": 8000,
+    "total_rti_required_hours": 576,
+    "annual_rti_hours": 144,
+    "max_pla_bypass_hours": 4000,
+    "max_simulation_range_hours": 1000,
+    "supervisory_ratio": { "standard": "2:1", "max_apprentices_per_journeyman": 2, "reachability_sla_minutes": 15 },
+    "fatigue_limits": { "max_consecutive_shift_hours": 14.0, "min_uninterrupted_rest_hours": 10.0, "max_continuous_soc_queue_hours": 4.0 },
+    "tiers": [
+      { "tier": "Tier 1 Apprentice", "min_hours": 0, "max_hours": 2000, "wage_pct_rjpb": 50, "min_rti_hours": 144 },
+      { "tier": "Tier 2 Apprentice", "min_hours": 2001, "max_hours": 4000, "wage_pct_rjpb": 60, "min_rti_hours": 288 },
+      { "tier": "Tier 3 Apprentice", "min_hours": 4001, "max_hours": 6000, "wage_pct_rjpb": 70, "min_rti_hours": 432 },
+      { "tier": "Tier 4 Apprentice", "min_hours": 6001, "max_hours": 8000, "wage_pct_rjpb": 80, "min_rti_hours": 576 },
+      { "tier": "Licensed Journeyman", "min_hours": 8000, "max_hours": 12000, "wage_pct_rjpb": 100, "min_rti_hours": 576 },
+      { "tier": "Master Practitioner", "min_hours": 12000, "max_hours": 999999, "wage_pct_rjpb": 135, "min_rti_hours": 576 }
+    ]
+  }
+}

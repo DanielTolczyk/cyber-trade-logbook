@@ -1,0 +1,25 @@
+[project]
+name = "cyber-trade-logbook"
+version = "0.1.0"
+description = "Universal Digital Logbook and Competency Ledger for The Cybersecurity Trade Project"
+readme = "README.md"
+authors = [
+    { name = "Daniel Tolczyk", email = "daniel.tolczyk@gmail.com" }
+]
+requires-python = ">=3.13"
+dependencies = [
+    "pydantic>=2.10.0",
+    "cryptography>=44.0.0",
+]
+
+[project.scripts]
+ctl-logbook = "cyber_trade_logbook.cli:main"
+
+[build-system]
+requires = ["uv_build>=0.12.5,<0.13.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+]
