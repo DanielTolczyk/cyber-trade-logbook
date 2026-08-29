@@ -1,11 +1,12 @@
-const CACHE_NAME = "cyber-trade-logbook-v1";
+const CACHE_NAME = "cyber-trade-logbook-v3";
 const ASSETS_TO_CACHE = [
   "./",
   "./index.html",
   "./styles.css",
   "./app.js",
   "./manifest.json",
-  "./data/logbook_specifications.json"
+  "./data/logbook_specifications.json",
+  "./data/demo_logbook.json"
 ];
 
 self.addEventListener("install", (event) => {
@@ -32,24 +33,29 @@ self.addEventListener("activate", (event) => {
   self.clients.claim();
 });
 
+// Network-first strategy: fetch fresh content from server, fallback to cache when offline
 self.addEventListener("fetch", (event) => {
+  if (event.request.method !== "GET") return;
+
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) {
-        return cachedResponse;
-      }
-      return fetch(event.request).then((networkResponse) => {
-        if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== "basic") {
-          return networkResponse;
+    fetch(event.request)
+      .then((networkResponse) => {
+        if (networkResponse && networkResponse.status === 200) {
+          const responseToCache = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseToCache);
+          });
         }
-        const responseToCache = networkResponse.clone();
-        caches.open(CACHE_NAME).then((cache) => {
-          cache.put(event.request, responseToCache);
-        });
         return networkResponse;
-      }).catch(() => {
-        return caches.match("./index.html");
-      });
-    })
+      })
+      .catch(() => {
+        return caches.match(event.request).then((cachedResponse) => {
+          if (cachedResponse) return cachedResponse;
+          if (event.request.headers.get("accept")?.includes("text/html")) {
+            return caches.match("./index.html");
+          }
+        });
+      })
   );
 });
+

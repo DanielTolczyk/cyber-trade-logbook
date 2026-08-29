@@ -8,7 +8,7 @@
   <meta name="theme-color" content="#0ea5e9">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=2.1.0">
 </head>
 <body>
 
@@ -18,16 +18,19 @@
       <div class="brand-badge">CTP</div>
       <span class="brand-title">Trade Logbook</span>
     </div>
-    <div class="user-profile-badge">
-      <span class="tier-tag" id="header-tier">Tier 1 Apprentice</span>
+    <div style="display:flex; align-items:center; gap:8px;">
+      <button id="btn-top-demo" class="btn btn-primary" style="padding:4px 10px; font-size:11px;" onclick="window.app ? window.app.loadDemoDataset() : alert('Loading demo data...')">Demo (3.4k hrs)</button>
+      <div class="user-profile-badge">
+        <span class="tier-tag" id="header-tier">Tier 1 Apprentice</span>
+      </div>
     </div>
   </header>
   <!-- Persistent Demo Banner (Visible in Demo Mode) -->
   <div id="demo-mode-banner" class="demo-banner" style="display:none;">
     <span>DEMO MODE ACTIVE: Sample Apprentice Data (Non-Binding)</span>
     <div class="demo-banner-actions">
-      <button id="btn-demo-reload" class="demo-btn-sm">Reload Sample</button>
-      <button id="btn-demo-exit" class="demo-btn-sm">Exit to Production</button>
+      <button id="btn-demo-reload" class="demo-btn-sm" onclick="window.app && window.app.loadDemoDataset()">Reload</button>
+      <button id="btn-demo-exit" class="demo-btn-sm" onclick="window.app && window.app.exitDemoMode()">Exit Demo</button>
     </div>
   </div>
 
@@ -44,6 +47,14 @@
             <p style="color:var(--text-secondary); font-size:12px;">Verified OJT Runtime & Licensure Trajectory</p>
           </div>
           <span class="brand-badge" id="hero-wage-standing">50% RJPB</span>
+        </div>
+
+        <div id="dashboard-demo-prompt" style="background:rgba(14,165,233,0.12); border:1px solid var(--accent-cyan); border-radius:var(--radius-md); padding:12px; margin-top:14px; display:flex; justify-content:space-between; align-items:center; gap:8px;">
+          <div>
+            <strong style="font-size:12px; color:var(--text-primary); display:block;">Evaluate Live Demo Dataset:</strong>
+            <span style="font-size:11px; color:var(--text-secondary);">Populate 3,400 hrs across all 5 domains.</span>
+          </div>
+          <button id="btn-hero-load-demo" class="btn btn-primary" style="padding:6px 12px; font-size:11px; white-space:nowrap;" onclick="window.app ? window.app.loadDemoDataset() : alert('Loading demo data...')">Load Demo</button>
         </div>
 
         <div class="hero-stats-grid">
@@ -339,38 +350,57 @@
 
   <!-- Mobile Bottom Navigation -->
   <nav class="bottom-nav">
-    <button class="nav-item active" data-view="view-dashboard">
+    <button class="nav-item active" data-view="view-dashboard" onclick="switchTab('view-dashboard')">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
       <span>Dashboard</span>
     </button>
-    <button class="nav-item" data-view="view-log">
+    <button class="nav-item" data-view="view-log" onclick="switchTab('view-log')">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
       <span>Log Hours</span>
     </button>
-    <button class="nav-item" data-view="view-physical">
+    <button class="nav-item" data-view="view-physical" onclick="switchTab('view-physical')">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
       <span>Physical</span>
     </button>
-    <button class="nav-item" data-view="view-supervisor">
+    <button class="nav-item" data-view="view-supervisor" onclick="switchTab('view-supervisor')">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><polyline points="17 11 19 13 23 9"></polyline></svg>
       <span>Supervisor</span>
     </button>
-    <button class="nav-item" data-view="view-export">
+    <button class="nav-item" data-view="view-export" onclick="switchTab('view-export')">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
       <span>Export</span>
     </button>
-    <button class="nav-item" data-view="view-settings">
+    <button class="nav-item" data-view="view-settings" onclick="switchTab('view-settings')">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
       <span>Settings</span>
     </button>
   </nav>
 
-  <script src="app.js"></script>
+  <script>
+    function switchTab(viewId) {
+      document.querySelectorAll('.nav-item').forEach(btn => {
+        if (btn.getAttribute('data-view') === viewId) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+      document.querySelectorAll('.view-section').forEach(sec => {
+        if (sec.id === viewId) {
+          sec.classList.add('active');
+        } else {
+          sec.classList.remove('active');
+        }
+      });
+      window.scrollTo(0, 0);
+    }
+  </script>
+  <script src="app.js?v=2.1.0"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js').catch(err => {
-          console.log('ServiceWorker registration skipped in dev mode:', err);
+        navigator.serviceWorker.register('sw.js?v=2.1.0').catch(err => {
+          console.log('ServiceWorker registration skipped:', err);
         });
       });
     }

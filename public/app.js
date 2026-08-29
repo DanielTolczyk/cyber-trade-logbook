@@ -683,47 +683,61 @@ class AppUI {
     });
   }
 
+  async loadDemoDataset() {
+    try {
+      const res = await fetch("./data/demo_logbook.json");
+      const demoData = await res.json();
+      this.profile = demoData.practitioner;
+      for (const e of demoData.entries) {
+        await this.storage.saveEntry(e);
+      }
+      this.entries = await this.storage.getAllEntries(this.profile.trade_id);
+      this.setDemoMode(true);
+      this.render();
+      alert("Demo Simulation Mode activated. Sample apprentice records loaded (3,400.0 hrs).");
+    } catch (err) {
+      alert("Failed to load demo dataset: " + err.message);
+    }
+  }
+
+  async exitDemoMode() {
+    this.setDemoMode(false);
+    this.profile = {
+      name: "Jane Doe",
+      trade_id: "CTP-APP-2026-0884",
+      supervisor_id: "CTP-JRN-2024-0192",
+      pla_hours: 1000,
+      rti_hours: 288
+    };
+    this.entries = await this.storage.getAllEntries(this.profile.trade_id);
+    this.render();
+    alert("Exited Demo Mode. Restored isolated production trade vault.");
+  }
+
   bindDemoControls() {
     const btnLoadDemo = document.getElementById("btn-load-demo");
     if (btnLoadDemo) {
-      btnLoadDemo.addEventListener("click", async () => {
-        try {
-          const res = await fetch("./data/demo_logbook.json");
-          const demoData = await res.json();
-          this.profile = demoData.practitioner;
-          for (const e of demoData.entries) {
-            await this.storage.saveEntry(e);
-          }
-          this.entries = await this.storage.getAllEntries(this.profile.trade_id);
-          this.setDemoMode(true);
-          this.render();
-          alert("Demo Simulation Mode activated. Sample apprentice records loaded.");
-        } catch (err) {
-          alert("Failed to load demo dataset: " + err.message);
-        }
-      });
+      btnLoadDemo.addEventListener("click", () => this.loadDemoDataset());
+    }
+
+    const btnTopDemo = document.getElementById("btn-top-demo");
+    if (btnTopDemo) {
+      btnTopDemo.addEventListener("click", () => this.loadDemoDataset());
+    }
+
+    const btnHeroDemo = document.getElementById("btn-hero-load-demo");
+    if (btnHeroDemo) {
+      btnHeroDemo.addEventListener("click", () => this.loadDemoDataset());
     }
 
     const btnReloadDemo = document.getElementById("btn-demo-reload");
     if (btnReloadDemo) {
-      btnReloadDemo.addEventListener("click", () => btnLoadDemo?.click());
+      btnReloadDemo.addEventListener("click", () => this.loadDemoDataset());
     }
 
     const btnExitDemo = document.getElementById("btn-demo-exit");
     if (btnExitDemo) {
-      btnExitDemo.addEventListener("click", async () => {
-        this.setDemoMode(false);
-        this.profile = {
-          name: "Jane Doe",
-          trade_id: "CTP-APP-2026-0884",
-          supervisor_id: "CTP-JRN-2024-0192",
-          pla_hours: 1000,
-          rti_hours: 288
-        };
-        this.entries = await this.storage.getAllEntries(this.profile.trade_id);
-        this.render();
-        alert("Exited Demo Mode. Restored isolated production trade vault.");
-      });
+      btnExitDemo.addEventListener("click", () => this.exitDemoMode());
     }
 
     const btnPurgeVault = document.getElementById("btn-purge-vault");
@@ -861,14 +875,13 @@ class AppUI {
 }
 
 // Instantiate and bind on load
-window.addEventListener("DOMContentLoaded", () => {
-  window.app = new AppUI();
+window.app = new AppUI();
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", () => window.app.init());
+} else {
   window.app.init();
-});
+}
 
-    }
-    if (entry.domain === "D2_SYSTEM_HYGIENE" && entry.sub_domain === "LIVE_ALERT_TRIAGE" && h > 4.0) {
-      flags.push("Continuous live SOC triage exceeds 4-hour vigilance cap.");
     }
     if (previousEntry && previousEntry.end_timestamp && entry.start_timestamp) {
       const restHours = (new Date(entry.start_timestamp) - new Date(previousEntry.end_timestamp)) / 3600000;
