@@ -1,4 +1,4 @@
-const CACHE_NAME = "cyber-trade-logbook-v8";
+const CACHE_NAME = "cyber-trade-logbook-v9";
 const ASSETS_TO_CACHE = [
   "./",
   "./index.html",

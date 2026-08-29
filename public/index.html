@@ -8,17 +8,18 @@
   <meta name="theme-color" content="#0ea5e9">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <link rel="stylesheet" href="styles.css?v=2.6.0">
+  <link rel="stylesheet" href="styles.css?v=2.7.0">
 </head>
 <body>
 
   <!-- Top Sticky Header -->
   <header class="top-header">
-    <div class="brand-wrap">
+    <a href="https://github.com/DanielTolczyk/the-cyber-trade-project" target="_blank" rel="noopener" class="brand-wrap" style="text-decoration:none; color:inherit;">
       <div class="brand-badge">CTP</div>
       <span class="brand-title">Trade Logbook</span>
-    </div>
-    <div class="user-profile-badge">
+    </a>
+    <div class="user-profile-badge" style="display:flex; align-items:center; gap:8px;">
+      <a href="https://github.com/DanielTolczyk/the-cyber-trade-project" target="_blank" rel="noopener" class="tag" style="text-decoration:none; color:var(--accent-cyan); border-color:rgba(14,165,233,0.3); font-size:10px; display:inline-flex; align-items:center;">Project Specs ↗</a>
       <span class="tier-tag" id="header-tier">Tier 1 Apprentice</span>
     </div>
   </header>
@@ -27,6 +28,7 @@
   <div id="demo-mode-banner" class="demo-banner" style="display:none;">
     <span id="demo-banner-text">DEMO MODE: Apprentice Persona (Jane Doe)</span>
     <div class="demo-banner-actions">
+      <a href="https://github.com/DanielTolczyk/the-cyber-trade-project" target="_blank" rel="noopener" class="demo-btn-sm" style="text-decoration:none; display:inline-flex; align-items:center;">Project Specs ↗</a>
       <button id="btn-demo-switch" class="demo-btn-sm" onclick="window.app && window.app.toggleDemoPersona()">Switch Persona</button>
       <button id="btn-demo-exit" class="demo-btn-sm" onclick="window.app && window.app.exitDemoMode()">Exit to Real Mode</button>
     </div>
@@ -340,6 +342,20 @@
         </div>
       </div>
 
+      <!-- Trade Project Ecosystem Links Card -->
+      <div class="card" style="margin-top:16px;">
+        <h2 class="card-title">The Cybersecurity Trade Project Ecosystem</h2>
+        <p style="color:var(--text-secondary); font-size:12px; margin-bottom:14px;">
+          Standardized trade architecture, statutory rights, and open-source tooling.
+        </p>
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          <a href="https://github.com/DanielTolczyk/the-cyber-trade-project" target="_blank" rel="noopener" class="btn btn-secondary" style="text-decoration:none; text-align:center; display:block;">The Cybersecurity Trade Project (Framework Specs) ↗</a>
+          <a href="https://danieltolczyk.github.io/cyber-trade-estimator/" target="_blank" rel="noopener" class="btn btn-secondary" style="text-decoration:none; text-align:center; display:block;">Tier & Grandfathering Placement Estimator ↗</a>
+          <a href="https://github.com/DanielTolczyk/the-cyber-trade-project/blob/main/framework/logbook-standards.md" target="_blank" rel="noopener" class="btn btn-secondary" style="text-decoration:none; text-align:center; display:block;">Logbook Standards & Invariants (RFC) ↗</a>
+          <a href="https://github.com/DanielTolczyk/the-cyber-trade-project/blob/main/framework/logbook-schema.md" target="_blank" rel="noopener" class="btn btn-secondary" style="text-decoration:none; text-align:center; display:block;">Canonical JSON Schema Specification ↗</a>
+        </div>
+      </div>
+
     </section>
 
   </main>
@@ -391,11 +407,11 @@
       window.scrollTo(0, 0);
     }
   </script>
-  <script src="app.js?v=2.6.0"></script>
+  <script src="app.js?v=2.7.0"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js?v=2.6.0').catch(err => {
+        navigator.serviceWorker.register('sw.js?v=2.7.0').catch(err => {
           console.log('ServiceWorker registration skipped:', err);
         });
       });
