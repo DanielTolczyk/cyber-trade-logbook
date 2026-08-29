@@ -875,19 +875,13 @@ class AppUI {
 
 // Instantiate and bind on load
 window.app = new AppUI();
+window.loadApprenticeDemo = () => window.app && window.app.loadApprenticeDemo();
+window.loadSupervisorDemo = () => window.app && window.app.loadSupervisorDemo();
+window.exitDemoMode = () => window.app && window.app.exitDemoMode();
+window.toggleDemoPersona = () => window.app && window.app.toggleDemoPersona();
+
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", () => window.app.init());
 } else {
   window.app.init();
-}
-
-  }
-}
-
-      const store = tx.objectStore("profile");
-      const req = store.put({ key: "user_profile", data: profileData });
-      req.onsuccess = () => resolve(profileData);
-      req.onerror = () => reject(req.error);
-    });
-  }
 }
