@@ -282,9 +282,14 @@
           Generate formal audit binders for Board wage evaluations, zero-knowledge telemetry feeds for cyber insurers, or backup personal archives.
         </p>
         <div style="display:flex; flex-direction:column; gap:12px;">
-          <button class="btn btn-primary" onclick="window.print()">Print Official JATC Audit Binder (PDF)</button>
-          <button class="btn btn-secondary" onclick="alert('Exported zero-knowledge underwriter attestation JSON feed.')">Export Actuarial JSON Feed</button>
-          <button class="btn btn-secondary" onclick="alert('Exported full encrypted logbook vault.')">Backup Full Logbook Vault (JSON)</button>
+          <button id="btn-print-binder" class="btn btn-primary">Print Official JATC Audit Binder (PDF)</button>
+          <button id="btn-export-actuarial" class="btn btn-secondary">Export Actuarial JSON Feed</button>
+          <button id="btn-export-vault" class="btn btn-secondary">Backup Full Logbook Vault (JSON)</button>
+          
+          <div style="margin-top:10px; border-top:1px solid var(--border-color); padding-top:12px;">
+            <label class="form-label">Restore / Merge Vault from JSON Backup</label>
+            <input type="file" id="input-vault-file" accept=".json,.ctp-vault" class="form-control" style="padding:6px;">
+          </div>
         </div>
       </div>
     </section>
@@ -309,6 +314,9 @@
           <div class="form-group">
             <label class="form-label">PLA Hour Credit (Max 4,000)</label>
             <input type="number" id="prof-pla" class="form-control" value="1000">
+          </div>
+          <div class="form-group full-width">
+            <button id="btn-save-profile" class="btn btn-primary btn-block">Save Profile Changes</button>
           </div>
         </div>
       </div>
