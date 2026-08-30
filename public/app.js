@@ -636,6 +636,21 @@ class AppUI {
       }
     }
 
+    // Update Pending Attestation Reminder Banner
+    const reminderEl = document.getElementById("dashboard-pending-reminder");
+    const reminderText = document.getElementById("pending-reminder-text");
+    if (reminderEl) {
+      if (metrics.pendingHours > 0) {
+        reminderEl.style.display = "block";
+        if (reminderText) {
+          const pendingCount = this.entries.filter(e => e.status === "pending").length;
+          reminderText.textContent = `You have ${metrics.pendingHours.toFixed(1)} hours (${pendingCount} entries) in pending status. Tap to complete the 4-step supervisor attestation handshake.`;
+        }
+      } else {
+        reminderEl.style.display = "none";
+      }
+    }
+
     this.renderEntriesList();
     this.renderSupervisorQueue();
   }
@@ -678,13 +693,22 @@ class AppUI {
       // APPRENTICE MODE: Self-signing strictly blocked under Pillar IV
       let html = `
         <div style="background:rgba(217,119,6,0.15); border:1px solid rgba(217,119,6,0.4); padding:12px; border-radius:8px; margin-bottom:14px; font-size:12px; line-height:1.4;">
-          <strong>Apprentice Mode (${this.profile.trade_id}):</strong> Under Skilled Trade regulations (Pillar IV), apprentices are strictly prohibited from self-signing or signing peer apprentice ledgers.
-          Present the QR code below to your Supervising Journeyman to attest to your shift hours.
+          <strong>Apprentice Attestation Hub (${this.profile.trade_id}):</strong> Under Skilled Trade standards (Pillar IV), apprentices cannot self-sign. Follow the 4-step signing workflow below:
+        </div>
+
+        <div style="background:var(--bg-primary); border:1px solid var(--border-color); border-radius:8px; padding:12px; margin-bottom:16px;">
+          <div style="font-size:11px; font-weight:700; text-transform:uppercase; color:var(--text-secondary); margin-bottom:8px;">4-Step Attestation Workflow</div>
+          <div style="display:flex; flex-direction:column; gap:6px; font-size:12px;">
+            <div style="color:${pending.length > 0 ? 'var(--accent-emerald)' : 'var(--text-secondary)'};"><strong>Step 1:</strong> Log Operational Shift Runtime ${pending.length > 0 ? '✓' : ''}</div>
+            <div style="color:var(--accent-cyan);"><strong>Step 2:</strong> Generate Signing Request QR (Present to Journeyman) ➔</div>
+            <div style="color:var(--text-secondary);"><strong>Step 3:</strong> Supervisor Scans & Approves on Device 2</div>
+            <div style="color:var(--text-secondary);"><strong>Step 4:</strong> Scan Supervisor Response QR to Lock Verified Hours</div>
+          </div>
         </div>
       `;
 
       if (pending.length === 0) {
-        html += "<p style='color:var(--text-muted); font-size:13px;'>Zero pending entries requiring supervisor attestation.</p>";
+        html += "<p style='color:var(--text-muted); font-size:13px;'>Zero pending entries requiring supervisor attestation. All logged hours are verified and locked.</p>";
       } else {
         html += `
           <div style="margin-bottom:12px; display:flex; justify-content:space-between; align-items:center;">
@@ -702,8 +726,8 @@ class AppUI {
             `).join("")}
           </div>
           <div style="display:flex; flex-direction:column; gap:10px;">
-            <button class="btn btn-primary btn-block" onclick="window.app.generateSigningRequestQR()">Generate Supervisor Signing Request QR</button>
-            <button class="btn btn-secondary btn-block" onclick="window.app.openSignatureImportModal()">Import Supervisor Signature (QR / Paste)</button>
+            <button class="btn btn-primary btn-block" onclick="window.app.generateSigningRequestQR()">Step 2: Generate Supervisor Signing Request QR</button>
+            <button class="btn btn-secondary btn-block" onclick="window.app.openSignatureImportModal()">Step 4: Import Supervisor Signature (Scan QR / Paste)</button>
           </div>
         `;
       }
@@ -755,16 +779,20 @@ class AppUI {
     const totalHours = pending.reduce((sum, e) => sum + (parseFloat(e.hours) || 0), 0);
     const payload = `ctp:req;v=1;id=${this.profile.trade_id};name=${encodeURIComponent(this.profile.name)};h=${batchHash.substring(0, 32)};hrs=${totalHours};count=${pending.length};t=${new Date().toISOString()}`;
 
-    document.getElementById("qr-modal-title").textContent = "Supervisor Signing Request QR";
-    document.getElementById("qr-modal-desc").textContent = `Present this QR to your Supervising Journeyman (${pending.length} entries, ${totalHours.toFixed(1)} hrs).`;
+    document.getElementById("qr-modal-title").textContent = "Step 2: Supervisor Signing Request QR";
+    document.getElementById("qr-modal-desc").innerHTML = `
+      Present this QR to your Supervising Journeyman (${pending.length} entries, ${totalHours.toFixed(1)} hrs).<br>
+      <span style="color:var(--accent-cyan); font-weight:600;">Once the supervisor approves on their device, tap below to scan their Signature Response QR:</span>
+    `;
     document.getElementById("qr-code-container").innerHTML = SimpleQRCode.generateSVG(payload, 200);
     document.getElementById("qr-raw-payload").value = payload;
     document.getElementById("modal-qr-display").style.display = "flex";
   }
 
   openSignatureImportModal() {
-    document.getElementById("scanner-modal-title").textContent = "Import Supervisor Signature";
-    document.getElementById("scanner-modal-desc").textContent = "Scan the supervisor's Signature Response QR or paste the signature payload string below.";
+    document.getElementById("modal-qr-display").style.display = "none";
+    document.getElementById("scanner-modal-title").textContent = "Step 4: Scan Supervisor Response QR";
+    document.getElementById("scanner-modal-desc").textContent = "Scan the Signature Response QR shown on your supervisor's screen to lock your accredited hours.";
     document.getElementById("scanner-input-payload").placeholder = "ctp:sig;v=1;sup=CTP-JRN-...;s=...";
     document.getElementById("scanner-input-payload").value = "";
     document.getElementById("modal-qr-scanner").style.display = "flex";

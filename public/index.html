@@ -8,7 +8,7 @@
   <meta name="theme-color" content="#0ea5e9">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <link rel="stylesheet" href="styles.css?v=2.9.0">
+  <link rel="stylesheet" href="styles.css?v=3.0.0">
 </head>
 <body>
 
@@ -65,6 +65,17 @@
             <div class="stat-val" id="hero-pending-hours">0.0 hrs</div>
             <div class="stat-lbl">Pending</div>
           </div>
+        </div>
+      </div>
+
+      <!-- Pending Attestation Reminder Banner (Visible When Pending Hours > 0) -->
+      <div id="dashboard-pending-reminder" style="display:none; background:rgba(217,119,6,0.15); border:1px solid rgba(217,119,6,0.4); padding:12px 16px; border-radius:8px; margin-bottom:16px; cursor:pointer;" onclick="switchTab('view-supervisor')">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <strong style="color:var(--accent-amber); font-size:13px;">Action Required: Pending Supervisor Attestation</strong>
+            <p id="pending-reminder-text" style="color:var(--text-secondary); font-size:12px; margin-top:2px;">You have hours awaiting supervisor sign-off. Tap to initiate the 4-step signing handshake.</p>
+          </div>
+          <span style="font-size:18px; color:var(--accent-amber);">➔</span>
         </div>
       </div>
 
@@ -375,7 +386,10 @@
         <textarea id="qr-raw-payload" class="form-control" rows="3" readonly style="font-family:var(--font-mono); font-size:11px;"></textarea>
         <button class="btn btn-secondary btn-block" style="margin-top:6px; font-size:11px;" onclick="navigator.clipboard.writeText(document.getElementById('qr-raw-payload').value); alert('Payload copied to clipboard.');">Copy Payload String</button>
       </div>
-      <button class="btn btn-primary btn-block" onclick="document.getElementById('modal-qr-display').style.display='none'">Close</button>
+      <div style="display:flex; flex-direction:column; gap:8px;">
+        <button class="btn btn-success btn-block" onclick="window.app && window.app.openSignatureImportModal()">Next: Scan Supervisor Response QR ➔</button>
+        <button class="btn btn-secondary btn-block" onclick="document.getElementById('modal-qr-display').style.display='none'">Close</button>
+      </div>
     </div>
   </div>
 
@@ -451,11 +465,11 @@
       window.scrollTo(0, 0);
     }
   </script>
-  <script src="app.js?v=2.9.0"></script>
+  <script src="app.js?v=3.0.0"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js?v=2.9.0').catch(err => {
+        navigator.serviceWorker.register('sw.js?v=3.0.0').catch(err => {
           console.log('ServiceWorker registration skipped:', err);
         });
       });
