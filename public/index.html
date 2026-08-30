@@ -8,7 +8,7 @@
   <meta name="theme-color" content="#0ea5e9">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <link rel="stylesheet" href="styles.css?v=2.7.0">
+  <link rel="stylesheet" href="styles.css?v=2.8.0">
 </head>
 <body>
 
@@ -360,6 +360,50 @@
 
   </main>
 
+  <!-- Modal 1: QR Code Generator & Display Modal -->
+  <div id="modal-qr-display" class="modal-backdrop" style="display:none;">
+    <div class="modal-content" style="max-width:440px; text-align:center;">
+      <h3 id="qr-modal-title" style="font-size:16px; font-weight:700; margin-bottom:8px;">Supervisor Signing Request</h3>
+      <p id="qr-modal-desc" style="font-size:12px; color:var(--text-secondary); margin-bottom:16px;">
+        Present this QR code to your Supervising Journeyman to review and cryptographically sign your batch.
+      </p>
+      <div id="qr-code-container" style="background:#fff; padding:14px; border-radius:8px; display:inline-block; margin-bottom:14px; box-shadow: 0 4px 12px rgba(0,0,0,0.5);">
+        <!-- SVG QR Matrix Rendered Here -->
+      </div>
+      <div style="margin-bottom:14px; text-align:left;">
+        <label class="form-label" style="font-size:11px;">Raw Cryptographic Payload String</label>
+        <textarea id="qr-raw-payload" class="form-control" rows="3" readonly style="font-family:var(--font-mono); font-size:11px;"></textarea>
+        <button class="btn btn-secondary btn-block" style="margin-top:6px; font-size:11px;" onclick="navigator.clipboard.writeText(document.getElementById('qr-raw-payload').value); alert('Payload copied to clipboard.');">Copy Payload String</button>
+      </div>
+      <button class="btn btn-primary btn-block" onclick="document.getElementById('modal-qr-display').style.display='none'">Close</button>
+    </div>
+  </div>
+
+  <!-- Modal 2: QR Scanner / Import Modal -->
+  <div id="modal-qr-scanner" class="modal-backdrop" style="display:none;">
+    <div class="modal-content" style="max-width:480px;">
+      <h3 id="scanner-modal-title" style="font-size:16px; font-weight:700; margin-bottom:8px;">Scan Apprentice Request QR</h3>
+      <p id="scanner-modal-desc" style="font-size:12px; color:var(--text-secondary); margin-bottom:14px;">
+        Scan the screen using your camera or paste the raw cryptographic payload string below.
+      </p>
+      <div id="scanner-camera-box" style="background:#000; border-radius:8px; height:180px; display:flex; align-items:center; justify-content:center; color:#888; margin-bottom:14px; position:relative; overflow:hidden;">
+        <video id="qr-video" style="width:100%; height:100%; object-fit:cover; display:none;"></video>
+        <div id="camera-placeholder-text" style="font-size:12px; text-align:center; padding:10px;">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-bottom:6px;"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+          <br>Camera Scanner Ready<br><button class="btn btn-secondary btn-sm" style="margin-top:6px;" onclick="window.app && window.app.startCameraScanner()">Activate Device Camera</button>
+        </div>
+      </div>
+      <div class="form-group" style="margin-bottom:14px;">
+        <label class="form-label" style="font-size:11px;">Or Paste / Enter Cryptographic Payload</label>
+        <textarea id="scanner-input-payload" class="form-control" rows="3" placeholder="ctp:req;id=CTP-APP-..." style="font-family:var(--font-mono); font-size:11px;"></textarea>
+      </div>
+      <div style="display:flex; gap:10px;">
+        <button id="btn-process-scanned-payload" class="btn btn-primary" style="flex:1;" onclick="window.app && window.app.processScannedPayload()">Process Payload</button>
+        <button class="btn btn-secondary" onclick="document.getElementById('modal-qr-scanner').style.display='none'; window.app && window.app.stopCameraScanner();">Cancel</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Mobile Bottom Navigation -->
   <nav class="bottom-nav">
     <button class="nav-item active" data-view="view-dashboard" onclick="switchTab('view-dashboard')">
@@ -407,11 +451,11 @@
       window.scrollTo(0, 0);
     }
   </script>
-  <script src="app.js?v=2.7.0"></script>
+  <script src="app.js?v=2.8.0"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js?v=2.7.0').catch(err => {
+        navigator.serviceWorker.register('sw.js?v=2.8.0').catch(err => {
           console.log('ServiceWorker registration skipped:', err);
         });
       });

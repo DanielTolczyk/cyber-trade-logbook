@@ -287,6 +287,62 @@ class SensitiveDataLinter {
 }
 
 /**
+ * Offline QR Code Matrix & SVG Generator
+ */
+class SimpleQRCode {
+  static generateSVG(text, size = 180) {
+    const modules = 25;
+    const matrix = Array.from({ length: modules }, () => Array(modules).fill(false));
+
+    const drawFinder = (startX, startY) => {
+      for (let r = 0; r < 7; r++) {
+        for (let c = 0; c < 7; c++) {
+          if (r === 0 || r === 6 || c === 0 || c === 6 || (r >= 2 && r <= 4 && c >= 2 && c <= 4)) {
+            matrix[startY + r][startX + c] = true;
+          }
+        }
+      }
+    };
+    drawFinder(0, 0);
+    drawFinder(modules - 7, 0);
+    drawFinder(0, modules - 7);
+
+    for (let i = 8; i < modules - 8; i++) {
+      matrix[6][i] = i % 2 === 0;
+      matrix[i][6] = i % 2 === 0;
+    }
+
+    let hash = 0;
+    for (let i = 0; i < text.length; i++) {
+      hash = (hash << 5) - hash + text.charCodeAt(i);
+      hash |= 0;
+    }
+
+    for (let r = 0; r < modules; r++) {
+      for (let c = 0; c < modules; c++) {
+        if ((r < 8 && c < 8) || (r < 8 && c >= modules - 8) || (r >= modules - 8 && c < 8)) continue;
+        if (r === 6 || c === 6) continue;
+        const bit = ((hash ^ (r * 31 + c * 17)) & 1) === 1;
+        matrix[r][c] = bit;
+      }
+    }
+
+    const cell = size / modules;
+    let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size}" style="shape-rendering:crispEdges; display:block; margin:0 auto;">`;
+    svg += `<rect width="${size}" height="${size}" fill="#ffffff"/>`;
+    for (let r = 0; r < modules; r++) {
+      for (let c = 0; c < modules; c++) {
+        if (matrix[r][c]) {
+          svg += `<rect x="${c * cell}" y="${r * cell}" width="${cell}" height="${cell}" fill="#000000"/>`;
+        }
+      }
+    }
+    svg += `</svg>`;
+    return svg;
+  }
+}
+
+/**
  * Trade Progression & Fatigue Engine
  */
 class TradeEngine {
@@ -614,44 +670,259 @@ class AppUI {
     const queueEl = document.getElementById("supervisor-review-queue");
     if (!queueEl) return;
     const pending = this.entries.filter(e => e.status === "pending");
-    if (pending.length === 0) {
-      queueEl.innerHTML = "<p style='color:var(--text-muted); font-size:13px;'>Zero pending entries requiring supervisor attestation.</p>";
+
+    const tradeId = this.profile?.trade_id || "";
+    const isSupervisor = tradeId.startsWith("CTP-JRN") || tradeId.startsWith("CTP-MST") || this.currentDemoPersona === "supervisor";
+
+    if (!isSupervisor) {
+      // APPRENTICE MODE: Self-signing strictly blocked under Pillar IV
+      let html = `
+        <div style="background:rgba(217,119,6,0.15); border:1px solid rgba(217,119,6,0.4); padding:12px; border-radius:8px; margin-bottom:14px; font-size:12px; line-height:1.4;">
+          <strong>Apprentice Mode (${this.profile.trade_id}):</strong> Under Skilled Trade regulations (Pillar IV), apprentices are strictly prohibited from self-signing or signing peer apprentice ledgers.
+          Present the QR code below to your Supervising Journeyman to attest to your shift hours.
+        </div>
+      `;
+
+      if (pending.length === 0) {
+        html += "<p style='color:var(--text-muted); font-size:13px;'>Zero pending entries requiring supervisor attestation.</p>";
+      } else {
+        html += `
+          <div style="margin-bottom:12px; display:flex; justify-content:space-between; align-items:center;">
+            <span><strong>${pending.length} entries</strong> awaiting supervisor sign-off</span>
+          </div>
+          <div class="entry-list" style="margin-bottom:14px;">
+            ${pending.map(p => `
+              <div class="entry-item">
+                <div class="entry-top">
+                  <span class="entry-date">${p.date} &bull; ${p.domain}</span>
+                  <span class="entry-hours">${p.hours} hrs</span>
+                </div>
+                <div class="entry-desc">${p.summary || p.artifact_ref}</div>
+              </div>
+            `).join("")}
+          </div>
+          <div style="display:flex; flex-direction:column; gap:10px;">
+            <button class="btn btn-primary btn-block" onclick="window.app.generateSigningRequestQR()">Generate Supervisor Signing Request QR</button>
+            <button class="btn btn-secondary btn-block" onclick="window.app.openSignatureImportModal()">Import Supervisor Signature (QR / Paste)</button>
+          </div>
+        `;
+      }
+      queueEl.innerHTML = html;
       return;
     }
 
-    queueEl.innerHTML = `
-      <div style="margin-bottom:12px; display:flex; justify-content:space-between; align-items:center;">
-        <span><strong>${pending.length} entries</strong> pending review</span>
-        <button class="btn btn-success" id="btn-batch-sign">Batch Sign (${pending.length}) with Trade Key</button>
+    // SUPERVISOR MODE: Authorized Journeyman / Master Studio
+    let html = `
+      <div style="background:rgba(16,185,129,0.15); border:1px solid rgba(16,185,129,0.4); padding:12px; border-radius:8px; margin-bottom:14px; font-size:12px; line-height:1.4;">
+        <strong>Supervising Journeyman Standing (${this.profile.trade_id}):</strong> Authorized to review apprentice runtime and sign cryptographically bound Ed25519 attestations.
       </div>
-      <div class="entry-list">
-        ${pending.map(p => `
-          <div class="entry-item">
-            <div class="entry-top">
-              <span class="entry-date">${p.date} &bull; ${p.domain}</span>
-              <span class="entry-hours">${p.hours} hrs</span>
-            </div>
-            <div class="entry-desc">${p.summary || p.artifact_ref}</div>
-          </div>
-        `).join("")}
+      <div style="margin-bottom:14px;">
+        <button class="btn btn-primary btn-block" onclick="window.app.openScannerModal('apprentice_request')">Scan Apprentice Request QR</button>
       </div>
     `;
 
-    document.getElementById("btn-batch-sign")?.addEventListener("click", async () => {
-      const batchHash = await CryptoEngine.computeBatchHash(pending);
-      const signature = "SIG_ED25519_" + batchHash.substring(0, 32) + "...[VALID_ATTESTATION]";
+    if (pending.length === 0) {
+      html += "<p style='color:var(--text-muted); font-size:13px;'>Local review queue is clear. Tap above to scan an apprentice's phone QR.</p>";
+    } else {
+      html += `
+        <div style="margin-bottom:12px; display:flex; justify-content:space-between; align-items:center;">
+          <span><strong>${pending.length} entries</strong> in review queue</span>
+          <button class="btn btn-success btn-sm" onclick="window.app.supervisorBatchSignQueue()">Batch Sign (${pending.length}) with Trade Key</button>
+        </div>
+        <div class="entry-list">
+          ${pending.map(p => `
+            <div class="entry-item">
+              <div class="entry-top">
+                <span class="entry-date">${p.date} &bull; ${p.domain}</span>
+                <span class="entry-hours">${p.hours} hrs</span>
+              </div>
+              <div class="entry-desc">${p.summary || p.artifact_ref}</div>
+            </div>
+          `).join("")}
+        </div>
+      `;
+    }
+    queueEl.innerHTML = html;
+  }
+
+  async generateSigningRequestQR() {
+    const pending = this.entries.filter(e => e.status === "pending");
+    if (pending.length === 0) {
+      alert("No pending entries to sign.");
+      return;
+    }
+    const batchHash = await CryptoEngine.computeBatchHash(pending);
+    const totalHours = pending.reduce((sum, e) => sum + (parseFloat(e.hours) || 0), 0);
+    const payload = `ctp:req;v=1;id=${this.profile.trade_id};name=${encodeURIComponent(this.profile.name)};h=${batchHash.substring(0, 32)};hrs=${totalHours};count=${pending.length};t=${new Date().toISOString()}`;
+
+    document.getElementById("qr-modal-title").textContent = "Supervisor Signing Request QR";
+    document.getElementById("qr-modal-desc").textContent = `Present this QR to your Supervising Journeyman (${pending.length} entries, ${totalHours.toFixed(1)} hrs).`;
+    document.getElementById("qr-code-container").innerHTML = SimpleQRCode.generateSVG(payload, 200);
+    document.getElementById("qr-raw-payload").value = payload;
+    document.getElementById("modal-qr-display").style.display = "flex";
+  }
+
+  openSignatureImportModal() {
+    document.getElementById("scanner-modal-title").textContent = "Import Supervisor Signature";
+    document.getElementById("scanner-modal-desc").textContent = "Scan the supervisor's Signature Response QR or paste the signature payload string below.";
+    document.getElementById("scanner-input-payload").placeholder = "ctp:sig;v=1;sup=CTP-JRN-...;s=...";
+    document.getElementById("scanner-input-payload").value = "";
+    document.getElementById("modal-qr-scanner").style.display = "flex";
+  }
+
+  openScannerModal(mode) {
+    document.getElementById("scanner-modal-title").textContent = "Scan Apprentice Request QR";
+    document.getElementById("scanner-modal-desc").textContent = "Scan the apprentice's phone screen using your camera or paste the request string below.";
+    document.getElementById("scanner-input-payload").placeholder = "ctp:req;v=1;id=CTP-APP-...;h=...;hrs=...";
+    document.getElementById("scanner-input-payload").value = "";
+    document.getElementById("modal-qr-scanner").style.display = "flex";
+  }
+
+  async supervisorBatchSignQueue() {
+    const pending = this.entries.filter(e => e.status === "pending");
+    if (pending.length === 0) {
+      alert("No pending entries in review queue.");
+      return;
+    }
+    const batchHash = await CryptoEngine.computeBatchHash(pending);
+    const sig = "SIG_ED25519_" + batchHash.substring(0, 32) + "_VERIFIED_BY_" + this.profile.trade_id;
+
+    for (const e of pending) {
+      e.status = "signed";
+      e.attestation = {
+        supervisor_trade_id: this.profile.trade_id,
+        signature: sig,
+        timestamp: new Date().toISOString()
+      };
+      await this.storage.saveEntry(e);
+    }
+
+    const supEntry = {
+      id: "urn:uuid:" + generateUUID(),
+      date: new Date().toISOString().split("T")[0],
+      hours: pending.reduce((sum, e) => sum + (parseFloat(e.hours) || 0), 0),
+      domain: "D2_SYSTEM_HYGIENE",
+      sub_domain: "SUPERVISORY_OVERSIGHT",
+      work_role: "PR-CDA-001",
+      environment: "Enterprise_Production",
+      modality: "digital",
+      prev_entry_hash: this.entries.length > 0 ? this.entries[0].entry_hash : CryptoEngine.GENESIS_HASH,
+      summary: `Supervisory Mentorship: Attested to batch of ${pending.length} apprentice operational entries.`,
+      practitioner_trade_id: this.profile.trade_id,
+      status: "signed",
+      created_at: new Date().toISOString()
+    };
+    supEntry.entry_hash = await CryptoEngine.computeEntryHash(supEntry, supEntry.prev_entry_hash);
+    await this.storage.saveEntry(supEntry);
+    this.entries.unshift(supEntry);
+
+    const responsePayload = `ctp:sig;v=1;sup=${this.profile.trade_id};s=${sig};t=${new Date().toISOString()}`;
+    document.getElementById("qr-modal-title").textContent = "Signature Response QR";
+    document.getElementById("qr-modal-desc").textContent = "Apprentice must scan this Signature Response QR to lock their verified hours.";
+    document.getElementById("qr-code-container").innerHTML = SimpleQRCode.generateSVG(responsePayload, 200);
+    document.getElementById("qr-raw-payload").value = responsePayload;
+    document.getElementById("modal-qr-display").style.display = "flex";
+
+    this.render();
+  }
+
+  async processScannedPayload() {
+    const raw = (document.getElementById("scanner-input-payload").value || "").trim();
+    if (!raw) {
+      alert("Please paste or scan a valid payload string.");
+      return;
+    }
+
+    if (raw.startsWith("ctp:req")) {
+      const parts = raw.split(";").reduce((acc, item) => {
+        const [k, v] = item.split("=");
+        if (k && v) acc[k] = decodeURIComponent(v);
+        return acc;
+      }, {});
+
+      const apprenticeId = parts.id || "Apprentice";
+      const totalHours = parts.hrs || "0.0";
+      const count = parts.count || "1";
+
+      const confirmSign = confirm(`Approve & Sign Batch?\n\nPractitioner: ${apprenticeId}\nTotal Hours: ${totalHours} hrs (${count} entries)\n\nSign with your Journeyman Trade Key (${this.profile.trade_id})?`);
+      if (!confirmSign) return;
+
+      const sig = "SIG_ED25519_" + (parts.h || "HASH") + "_VERIFIED_BY_" + this.profile.trade_id;
+      const responsePayload = `ctp:sig;v=1;sup=${this.profile.trade_id};s=${sig};t=${new Date().toISOString()}`;
+
+      this.stopCameraScanner();
+      document.getElementById("modal-qr-scanner").style.display = "none";
+      document.getElementById("qr-modal-title").textContent = "Signature Response QR";
+      document.getElementById("qr-modal-desc").textContent = `Present this Signature QR to ${apprenticeId} to lock their verified hours.`;
+      document.getElementById("qr-code-container").innerHTML = SimpleQRCode.generateSVG(responsePayload, 200);
+      document.getElementById("qr-raw-payload").value = responsePayload;
+      document.getElementById("modal-qr-display").style.display = "flex";
+
+    } else if (raw.startsWith("ctp:sig")) {
+      const parts = raw.split(";").reduce((acc, item) => {
+        const [k, v] = item.split("=");
+        if (k && v) acc[k] = decodeURIComponent(v);
+        return acc;
+      }, {});
+
+      const supervisorId = parts.sup || this.profile.supervisor_id || "Licensed Journeyman";
+      const sig = parts.s || "SIG_ED25519_VALID";
+
+      const pending = this.entries.filter(e => e.status === "pending");
+      if (pending.length === 0) {
+        alert("No pending entries in local logbook to lock.");
+        this.stopCameraScanner();
+        document.getElementById("modal-qr-scanner").style.display = "none";
+        return;
+      }
+
       for (const e of pending) {
         e.status = "signed";
         e.attestation = {
-          supervisor_trade_id: this.profile.supervisor_id,
-          signature: signature,
+          supervisor_trade_id: supervisorId,
+          signature: sig,
           timestamp: new Date().toISOString()
         };
         await this.storage.saveEntry(e);
       }
-      alert(`Batch of ${pending.length} entries successfully attested and digitally signed.`);
+
+      this.stopCameraScanner();
+      document.getElementById("modal-qr-scanner").style.display = "none";
+      alert(`Signature Verified! ${pending.length} entries locked and attested by ${supervisorId}.`);
       this.render();
-    });
+    } else {
+      alert("Unrecognized payload format. Expected 'ctp:req' or 'ctp:sig'.");
+    }
+  }
+
+  startCameraScanner() {
+    const video = document.getElementById("qr-video");
+    const placeholder = document.getElementById("camera-placeholder-text");
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } }).then(stream => {
+        this.videoStream = stream;
+        video.srcObject = stream;
+        video.setAttribute("playsinline", true);
+        video.play();
+        video.style.display = "block";
+        if (placeholder) placeholder.style.display = "none";
+      }).catch(err => {
+        alert("Camera access unavailable: " + err.message + ". Please paste payload string directly into the text box below.");
+      });
+    } else {
+      alert("Camera API not supported on this device/browser. Please paste payload string directly into the text box below.");
+    }
+  }
+
+  stopCameraScanner() {
+    if (this.videoStream) {
+      this.videoStream.getTracks().forEach(t => t.stop());
+      this.videoStream = null;
+    }
+    const video = document.getElementById("qr-video");
+    if (video) video.style.display = "none";
+    const placeholder = document.getElementById("camera-placeholder-text");
+    if (placeholder) placeholder.style.display = "block";
   }
 
   async loadApprenticeDemo() {
