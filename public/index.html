@@ -8,7 +8,7 @@
   <meta name="theme-color" content="#0ea5e9">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <link rel="stylesheet" href="styles.css?v=3.0.0">
+  <link rel="stylesheet" href="styles.css?v=3.1.0">
 </head>
 <body>
 
@@ -346,6 +346,7 @@
         <div style="display:flex; flex-direction:column; gap:10px;">
           <button id="btn-load-demo-app" class="btn btn-secondary" onclick="window.app && window.app.loadApprenticeDemo()">Load Apprentice Demo (Jane Doe - 3.4k hrs)</button>
           <button id="btn-load-demo-sup" class="btn btn-secondary" onclick="window.app && window.app.loadSupervisorDemo()">Load Supervisor Demo (Marcus Vance - 9.2k hrs)</button>
+          <button id="btn-load-demo-dir" class="btn btn-secondary" onclick="window.app && window.app.loadAuditorDemo()">Load JATC Auditor Demo (David Sterling - Director)</button>
           <button id="btn-exit-demo" class="btn btn-primary" onclick="window.app && window.app.exitDemoMode()">Switch to Real Production Mode</button>
           <div style="margin-top:6px; border-top:1px solid var(--border-color); padding-top:10px;">
             <button id="btn-purge-vault" class="btn btn-danger btn-block">Purge Active Vault</button>
@@ -465,11 +466,11 @@
       window.scrollTo(0, 0);
     }
   </script>
-  <script src="app.js?v=3.0.0"></script>
+  <script src="app.js?v=3.1.0"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js?v=3.0.0').catch(err => {
+        navigator.serviceWorker.register('sw.js?v=3.1.0').catch(err => {
           console.log('ServiceWorker registration skipped:', err);
         });
       });

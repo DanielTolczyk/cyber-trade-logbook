@@ -1,0 +1,38 @@
+{
+  "practitioner": {
+    "trade_id": "CTP-DEMO-DIR-0005",
+    "name": "David Sterling (JATC Director Demo)",
+    "tier": "JATC Training Director",
+    "pla_hours": 0,
+    "rti_hours": 576,
+    "supervisor_id": "NCTB-ROOT-CA"
+  },
+  "entries": [
+    {
+      "id": "urn:uuid:demo-dir-audit-seal-01",
+      "date": "2026-08-20",
+      "hours": 1400.0,
+      "domain": "D1_PERIMETER_CLOUD",
+      "sub_domain": "SCIF_PHYSICAL_OPS",
+      "work_role": "SP-ARC-001",
+      "environment": "Classified_SCIF_Enclave",
+      "modality": "physical_bound",
+      "prev_entry_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+      "entry_hash": "d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2",
+      "book_serial": "JATC-LOG-2026-00441",
+      "page_number": 52,
+      "line_number": 15,
+      "supervisor_name": "Marcus Vance, Journeyman",
+      "supervisor_trade_id": "CTP-JRN-2024-0192",
+      "summary": "JATC Physical Audit Seal: Accredited 1,400.0 verified SCIF hours across Pages 1-52.",
+      "practitioner_trade_id": "CTP-DEMO-DIR-0005",
+      "physical_signature_present": true,
+      "status": "signed",
+      "attestation": {
+        "supervisor_trade_id": "CTP-DEMO-DIR-0005",
+        "signature": "SIG_JATC_BOARD_DIRECTOR_SEAL_0005",
+        "timestamp": "2026-08-20T14:30:00Z"
+      }
+    }
+  ]
+}

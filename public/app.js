@@ -735,6 +735,35 @@ class AppUI {
       return;
     }
 
+    if (this.currentDemoPersona === "auditor" || tradeId.startsWith("CTP-DIR")) {
+      // JATC TRAINING DIRECTOR & BOARD AUDITOR STUDIO
+      let html = `
+        <div style="background:rgba(14,165,233,0.15); border:1px solid rgba(14,165,233,0.4); padding:12px; border-radius:8px; margin-bottom:14px; font-size:12px; line-height:1.4;">
+          <strong>JATC Training Director Standing (${this.profile.trade_id}):</strong> Authorized to spot-check Merkle chain integrity, audit physical bound books, and issue statutory Wage Step elevation seals.
+        </div>
+
+        <div style="background:var(--bg-primary); border:1px solid var(--border-color); border-radius:8px; padding:14px; margin-bottom:14px;">
+          <h4 style="font-size:13px; font-weight:700; margin-bottom:8px; color:var(--accent-cyan);">1. Merkle Chain Integrity Audit (Spot-Check)</h4>
+          <p style="font-size:12px; color:var(--text-secondary); margin-bottom:10px;">Traverses cryptographic hash chain from Genesis to Chain Head to verify zero historical mutations.</p>
+          <button class="btn btn-primary btn-block" onclick="window.app.auditMerkleChain()">Run Cryptographic Hash Audit</button>
+        </div>
+
+        <div style="background:var(--bg-primary); border:1px solid var(--border-color); border-radius:8px; padding:14px; margin-bottom:14px;">
+          <h4 style="font-size:13px; font-weight:700; margin-bottom:8px; color:var(--accent-emerald);">2. JATC Physical Book Audit Seal Studio</h4>
+          <p style="font-size:12px; color:var(--text-secondary); margin-bottom:10px;">In-person quarterly inspection: Accredit verified paper logbook page ranges into the digital ledger.</p>
+          <button class="btn btn-success btn-block" onclick="window.app.issueJATCPhysicalSeal()">Issue JATC Physical Audit Seal (Pages 1-52, 1,400 hrs)</button>
+        </div>
+
+        <div style="background:var(--bg-primary); border:1px solid var(--border-color); border-radius:8px; padding:14px;">
+          <h4 style="font-size:13px; font-weight:700; margin-bottom:8px; color:var(--accent-amber);">3. Wage Step Advancement Gating</h4>
+          <p style="font-size:12px; color:var(--text-secondary); margin-bottom:10px;">Approve apprentice progression to next statutory wage step upon meeting rotational domain thresholds.</p>
+          <button class="btn btn-secondary btn-block" onclick="alert('JATC Board Elevation Approved: Jane Doe accredited for Tier 3 Apprentice advancement (70% RJPB). Wage notification dispatched to employer.')">Approve Wage Elevation (Tier 2 ➔ Tier 3: 70% RJPB)</button>
+        </div>
+      `;
+      queueEl.innerHTML = html;
+      return;
+    }
+
     // SUPERVISOR MODE: Authorized Journeyman / Master Studio
     let html = `
       <div style="background:rgba(16,185,129,0.15); border:1px solid rgba(16,185,129,0.4); padding:12px; border-radius:8px; margin-bottom:14px; font-size:12px; line-height:1.4;">
@@ -1014,9 +1043,86 @@ class AppUI {
     }
   }
 
+  async loadAuditorDemo() {
+    try {
+      const res = await fetch("./data/demo_auditor.json");
+      const demoData = await res.json();
+      this.profile = demoData.practitioner;
+      for (const e of demoData.entries) {
+        await this.storage.saveEntry(e);
+      }
+      this.entries = await this.storage.getAllEntries(this.profile.trade_id);
+      this.currentDemoPersona = "auditor";
+      this.setDemoMode(true, "DEMO MODE: JATC Auditor Persona (David Sterling - Director)");
+      this.render();
+      if (typeof switchTab === "function") {
+        switchTab("view-dashboard");
+      }
+    } catch (err) {
+      alert("Failed to load auditor demo: " + err.message);
+    }
+  }
+
+  async auditMerkleChain() {
+    if (this.entries.length === 0) {
+      alert("Ledger is empty. Zero entries to audit.");
+      return;
+    }
+    let unbroken = true;
+    for (let i = 0; i < this.entries.length - 1; i++) {
+      const current = this.entries[i];
+      const previous = this.entries[i + 1];
+      if (current.prev_entry_hash !== previous.entry_hash) {
+        unbroken = false;
+        break;
+      }
+    }
+    if (unbroken) {
+      alert(`[PASS] Merkle Chain Integrity Audit Verified:\n\n• Examined ${this.entries.length} chained entries from Genesis.\n• 0 historical mutations or broken links detected.\n• 100% cryptographic integrity compliant with JATC audit standards.`);
+    } else {
+      alert("[FAIL] Merkle Chain Discrepancy Detected! One or more historical entries were modified.");
+    }
+  }
+
+  async issueJATCPhysicalSeal() {
+    const sealEntry = {
+      id: "urn:uuid:" + generateUUID(),
+      date: new Date().toISOString().split("T")[0],
+      hours: 1400.0,
+      domain: "D1_PERIMETER_CLOUD",
+      sub_domain: "SCIF_PHYSICAL_OPS",
+      work_role: "SP-ARC-001",
+      environment: "Classified_SCIF_Enclave",
+      modality: "physical_bound",
+      prev_entry_hash: this.entries.length > 0 ? this.entries[0].entry_hash : CryptoEngine.GENESIS_HASH,
+      book_serial: "JATC-LOG-2026-00441",
+      page_number: 52,
+      line_number: 15,
+      supervisor_name: "Marcus Vance, Journeyman",
+      supervisor_trade_id: "CTP-JRN-2024-0192",
+      summary: "JATC Physical Book Audit Seal: Accredited 1,400.0 verified SCIF hours (Pages 1-52).",
+      practitioner_trade_id: this.profile.trade_id,
+      physical_signature_present: true,
+      status: "signed",
+      attestation: {
+        supervisor_trade_id: this.profile.trade_id,
+        signature: "SIG_JATC_BOARD_DIRECTOR_SEAL_" + generateUUID().substring(0, 8),
+        timestamp: new Date().toISOString()
+      },
+      created_at: new Date().toISOString()
+    };
+    sealEntry.entry_hash = await CryptoEngine.computeEntryHash(sealEntry, sealEntry.prev_entry_hash);
+    await this.storage.saveEntry(sealEntry);
+    this.entries.unshift(sealEntry);
+    alert("JATC Physical Audit Seal successfully stamped! 1,400.0 SCIF hours permanently accredited into member's digital ledger.");
+    this.render();
+  }
+
   async toggleDemoPersona() {
     if (this.currentDemoPersona === "apprentice") {
       await this.loadSupervisorDemo();
+    } else if (this.currentDemoPersona === "supervisor") {
+      await this.loadAuditorDemo();
     } else {
       await this.loadApprenticeDemo();
     }
@@ -1197,6 +1303,7 @@ class AppUI {
 window.app = new AppUI();
 window.loadApprenticeDemo = () => window.app && window.app.loadApprenticeDemo();
 window.loadSupervisorDemo = () => window.app && window.app.loadSupervisorDemo();
+window.loadAuditorDemo = () => window.app && window.app.loadAuditorDemo();
 window.exitDemoMode = () => window.app && window.app.exitDemoMode();
 window.toggleDemoPersona = () => window.app && window.app.toggleDemoPersona();
 

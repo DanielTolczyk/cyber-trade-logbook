@@ -1,4 +1,4 @@
-const CACHE_NAME = "cyber-trade-logbook-v12";
+const CACHE_NAME = "cyber-trade-logbook-v13";
 const ASSETS_TO_CACHE = [
   "./",
   "./index.html",
@@ -7,7 +7,8 @@ const ASSETS_TO_CACHE = [
   "./manifest.json",
   "./data/logbook_specifications.json",
   "./data/demo_apprentice.json",
-  "./data/demo_supervisor.json"
+  "./data/demo_supervisor.json",
+  "./data/demo_auditor.json"
 ];
 
 self.addEventListener("install", (event) => {
