@@ -850,6 +850,27 @@ class AppUI {
       const sig = "SIG_ED25519_" + (parts.h || "HASH") + "_VERIFIED_BY_" + this.profile.trade_id;
       const responsePayload = `ctp:sig;v=1;sup=${this.profile.trade_id};s=${sig};t=${new Date().toISOString()}`;
 
+      // Bilateral cross-logging: record instructional oversight entry in Journeyman's personal ledger
+      const supEntry = {
+        id: "urn:uuid:" + generateUUID(),
+        date: new Date().toISOString().split("T")[0],
+        hours: parseFloat(totalHours) || 0,
+        domain: "D2_SYSTEM_HYGIENE",
+        sub_domain: "SUPERVISORY_OVERSIGHT",
+        work_role: "PR-CDA-001",
+        environment: "Enterprise_Production",
+        modality: "digital",
+        prev_entry_hash: this.entries.length > 0 ? this.entries[0].entry_hash : CryptoEngine.GENESIS_HASH,
+        summary: `Supervisory Mentorship: Attested to batch of ${count} operational entries for ${apprenticeId} (${totalHours} hrs).`,
+        practitioner_trade_id: this.profile.trade_id,
+        status: "signed",
+        created_at: new Date().toISOString()
+      };
+      supEntry.entry_hash = await CryptoEngine.computeEntryHash(supEntry, supEntry.prev_entry_hash);
+      await this.storage.saveEntry(supEntry);
+      this.entries.unshift(supEntry);
+      this.render();
+
       this.stopCameraScanner();
       document.getElementById("modal-qr-scanner").style.display = "none";
       document.getElementById("qr-modal-title").textContent = "Signature Response QR";
