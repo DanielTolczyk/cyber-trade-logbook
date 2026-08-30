@@ -15,7 +15,31 @@ To eliminate enterprise friction, corporate security audits, and software whitel
 
 ---
 
-## 2. The Unified Single-App Experience (Dual-Role Interface)
+## 2. Platform Setup & Installation (Mobile vs. Desktop)
+
+The tool requires zero server setup for daily practitioners:
+
+### A. Mobile Phone & Tablet Setup (iOS & Android) — 100% Offline PWA
+No terminal commands, compilers, or server processes are required.
+1. **Visit Once:** Open `https://danieltolczyk.github.io/cyber-trade-logbook/` in Safari (iOS) or Chrome (Android).
+2. **Install to Home Screen:**
+   * **iPhone/iPad (Safari):** Tap the **Share** button (box with arrow) -> scroll and tap **"Add to Home Screen"** -> tap **Add**.
+   * **Android (Chrome):** Tap the **three dots** menu -> tap **"Install App"** (or **"Add to Home Screen"**).
+3. **Launch & Offline Use:** Tap the app icon on your device home screen. The Service Worker stores the complete application locally. You can use it in airplane mode, subway commutes, or field sites with zero Wi-Fi or cellular service.
+
+### B. Computer / Laptop Setup (macOS, Windows, Linux)
+* **Web Mode:** Open `https://danieltolczyk.github.io/cyber-trade-logbook/` in any desktop browser.
+* **Air-Gapped Local Host Mode:** If operating in an isolated security lab with zero internet:
+  ```bash
+  git clone https://github.com/DanielTolczyk/cyber-trade-logbook.git
+  cd cyber-trade-logbook
+  uv run python -m http.server 8000 --directory public
+  ```
+  Open `http://localhost:8000` in your browser.
+
+---
+
+## 3. The Unified Single-App Experience (Dual-Role Interface)
 
 The application provides a unified interface where all trade members use the exact same software:
 
@@ -44,7 +68,7 @@ The application provides a unified interface where all trade members use the exa
 
 ---
 
-## 3. Step-by-Step Operational Workflows
+## 4. Step-by-Step Operational Workflows
 
 ### Workflow A: Daily Operational Logging (Digital Modality)
 1. At the end of a shift, open the app on your personal phone or computer.
@@ -84,7 +108,7 @@ When a sprint or week of operational hours is ready for supervisor attestation:
 
 ---
 
-## 4. Cryptographic Security & Anti-Fraud Invariants
+## 5. Cryptographic Security & Anti-Fraud Invariants
 
 ### 1. Tamper-Proof Merkle Hash Chaining
 Every entry incorporates the SHA-256 hash of the immediately preceding entry ($H_{\text{prev}}$):
@@ -103,7 +127,7 @@ $$\text{Entry Hash} = \text{SHA-256}(\text{log\_id} \,\|\, H_{\text{prev}} \,\|\
 
 ---
 
-## 5. Exports, JATC Audits & Cyber Insurance Telemetry
+## 6. Exports, JATC Audits & Cyber Insurance Telemetry
 
 ### 1. Official JATC Audit Binder (PDF)
 * Formatted printable ledger conforming to Department of Labor (DOL) 29 CFR § 29 apprenticeship audit standards.

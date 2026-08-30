@@ -64,24 +64,56 @@ cyber-trade-logbook/
 
 ---
 
-## 3. Local Development & Testing
+## 3. Deployment & Setup Guide (Mobile vs. Computer)
 
-### Running the Python Test Suite
+The application requires zero server installations on mobile devices. It is distributed as a Progressive Web App (PWA) with client-side offline execution:
+
+### A. Mobile Setup (iOS & Android) — Zero Terminal Commands, 100% Offline
+
+```
+[ STEP 1: INITIAL VISIT ]
+• Open https://danieltolczyk.github.io/cyber-trade-logbook/ on your mobile browser (Safari or Chrome).
+
+[ STEP 2: INSTALL AS STANDALONE APP ]
+• On iOS (Safari): Tap the Share button -> tap "Add to Home Screen".
+• On Android (Chrome): Tap the three-dot menu -> tap "Install App" (or "Add to Home Screen").
+
+[ STEP 3: OFFLINE EXECUTION ]
+• Launch the app from your home screen icon.
+• The Service Worker caches all assets. The app functions completely offline without cellular or Wi-Fi connectivity.
+```
+
+### B. Computer / Laptop Setup (macOS, Windows, Linux)
+
+* **Option 1 (Web Browser / Desktop PWA):**
+  * Open `https://danieltolczyk.github.io/cyber-trade-logbook/` in Chrome, Edge, Safari, or Firefox.
+  * In Chrome/Edge, click the **Install** icon in the address bar to run it in standalone desktop app mode.
+* **Option 2 (Air-Gapped / Local Hosting for Isolated Labs):**
+  * For isolated forensic enclaves or air-gapped workstations where external internet access is prohibited:
+    ```bash
+    git clone https://github.com/DanielTolczyk/cyber-trade-logbook.git
+    cd cyber-trade-logbook
+    uv run python -m http.server 8000 --directory public
+    ```
+  * Open `http://localhost:8000` in your local browser.
+
+### C. SCIF Facilities vs. Offline Field Environments
+
+* **Classified Facilities (SCIFs / Closed Areas):**
+  * Where mobile devices and smart devices must be checked at the door: Log operational tasks in your **Serialized Physical Bound Book** and have your supervisor stamp entries with their official license stamp (`CTP-JRN-XXXX`).
+  * When outside the secure area, transcribe the physical coordinates into your mobile or desktop digital logbook.
+* **Offline Field Environments (Basement SOCs / Industrial Plants / Maritime):**
+  * Where personal mobile devices are permitted but lack cellular signal or Wi-Fi: The mobile PWA operates completely offline in local IndexedDB storage. All Merkle hash chains, signatures, and progression metrics compute locally in device memory.
+
+---
+
+## 4. Local Development & Automated Test Suite
+
 Managed via `uv`:
 ```bash
 cd cyber-trade-logbook
 uv run pytest
 ```
-
-### Launching the Local Web Dashboard & PWA
-```bash
-uv run python -m http.server 8000 --directory public
-```
-
-
----
-
-## 4. Member Custody & Backup Responsibility Notice
 
 Under The Cybersecurity Trade Project specifications, your logbook is your statutory personal property. Sponsoring employers, training trusts, and trade unions do not maintain centralized custody of your raw operational logs.
 
