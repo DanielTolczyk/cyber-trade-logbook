@@ -399,8 +399,34 @@
       <div class="card">
         <h2 class="card-title">Supervisor Attestation Queue</h2>
         <p style="color:var(--text-secondary); font-size:12px; margin-bottom:14px;">
-          Supervising Journeymen: Review pending apprentice runtime batches and sign with Trade Key.
+          Supervising Journeymen: Review pending apprentice runtime batches and cryptographically sign shift logs.
         </p>
+
+        <!-- Attestation Modality Guide -->
+        <div style="background:var(--bg-card-secondary); border:1px solid var(--border-color); border-radius:6px; padding:12px; margin-bottom:16px;">
+          <h4 style="font-size:12px; font-weight:700; color:var(--text-primary); margin-bottom:8px; text-transform:uppercase; letter-spacing:0.05em;">
+            4 Recognized Supervisor Attestation Modalities
+          </h4>
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:10px; font-size:11px; color:var(--text-secondary);">
+            <div style="background:var(--bg-dark); padding:8px 10px; border-radius:4px; border-left:3px solid var(--accent-cyan);">
+              <strong style="color:var(--text-primary); display:block; margin-bottom:2px;">Modality A: WebAuthn / Passkey</strong>
+              Direct on-screen or QR code batch signing using FIDO2 hardware keys (Active in Demo).
+            </div>
+            <div style="background:var(--bg-dark); padding:8px 10px; border-radius:4px; border-left:3px solid var(--accent-blue);">
+              <strong style="color:var(--text-primary); display:block; margin-bottom:2px;">Modality B: Git Signed Commits</strong>
+              GPG/SSH cryptographic commit signatures on detection engineering and code PR branches.
+            </div>
+            <div style="background:var(--bg-dark); padding:8px 10px; border-radius:4px; border-left:3px solid var(--accent-amber);">
+              <strong style="color:var(--text-primary); display:block; margin-bottom:2px;">Modality C: Physical Bound Book</strong>
+              Serialized hand-signed logbook with physical license stamp for classified SCIF / air-gapped sites.
+            </div>
+            <div style="background:var(--bg-dark); padding:8px 10px; border-radius:4px; border-left:3px solid var(--accent-green);">
+              <strong style="color:var(--text-primary); display:block; margin-bottom:2px;">Modality D: Enterprise SSO / IdP</strong>
+              Automated shift assertions via SAML/OIDC federated with change ticketing CAB approvals.
+            </div>
+          </div>
+        </div>
+
         <div id="supervisor-review-queue"></div>
       </div>
     </section>
