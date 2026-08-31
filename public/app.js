@@ -543,6 +543,7 @@ class AppUI {
   }
 
   async init() {
+    this.checkLegacyRedirectTelemetry();
     this.bindNavigation();
     this.bindForms();
     this.bindExportHandlers();
@@ -1715,6 +1716,19 @@ class AppUI {
       alert("Vault unloaded. You can now load another logbook or start a new record.");
     }
   }
+    }
+  }
+
+  checkLegacyRedirectTelemetry() {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("src") === "legacy_redirect" || params.get("ref") === "legacy_redirect") {
+        const current = parseInt(localStorage.getItem("ctp_legacy_redirect_count") || "0", 10);
+        localStorage.setItem("ctp_legacy_redirect_count", (current + 1).toString());
+        localStorage.setItem("ctp_legacy_redirect_last", new Date().toISOString());
+      }
+    } catch (e) {
+      // Fail silently in restricted sandbox
     }
   }
 
