@@ -139,4 +139,12 @@ To eliminate the need to mail paper logbooks or manually re-type thousands of cl
 2. **Examiner Digital Seal:** The Examiner verifies page ranges, supervisor stamps, and hours, then signs an official `JATCPhysicalAuditSeal` using their authorized Director Trade Key.
 3. **Accredited Milestone:** The seal block is appended to the member's digital ledger and submitted to the Clearinghouse, formally accrediting the physical hours for wage step elevation.
 
-Open `http://localhost:8000` on your mobile device or desktop browser.
+## 7. Cryptographic Vault Security & Inactivity Encryption (AES-256-GCM)
+
+To protect practitioner records on shared workstations, SCIF terminals, or college labs:
+
+* **Authenticated AES-256-GCM Encryption:** Vault records are encrypted at rest using native browser WebCrypto AES-GCM.
+* **PBKDF2 Key Derivation:** Encryption keys are derived dynamically from a 4-digit PIN using PBKDF2 with 100,000 iterations of SHA-256 and a 16-byte random salt. The PIN is never saved in LocalStorage, IndexedDB, or server telemetry.
+* **Inactivity Auto-Lock:** After 15 minutes of inactivity (or upon manual lock), the active ledger is encrypted into an authenticated ciphertext payload and plaintext records are wiped from browser memory.
+* **Zero-Backdoor Hybrid Submissions:** Formal JATC wage elevation audits utilize dual-recipient hybrid envelope encryption (asymmetric public keys) rather than centralized master backdoor passwords.
+* **Shared Terminal Safety:** Includes an instant "Unload / Switch Vault" action on the lock screen allowing practitioners to safely clear local memory before another user accesses the workstation.
