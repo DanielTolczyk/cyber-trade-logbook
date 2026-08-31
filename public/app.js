@@ -262,6 +262,64 @@ class CryptoEngine {
     entryHashes.sort();
     return this.hashPayload(entryHashes.join(":"));
   }
+
+  static async deriveKeyFromPIN(pin, salt) {
+    if (!window.crypto || !window.crypto.subtle) return null;
+    const enc = new TextEncoder();
+    const baseKey = await crypto.subtle.importKey(
+      "raw",
+      enc.encode(pin),
+      { name: "PBKDF2" },
+      false,
+      ["deriveKey"]
+    );
+    return crypto.subtle.deriveKey(
+      {
+        name: "PBKDF2",
+        salt: salt,
+        iterations: 100000,
+        hash: "SHA-256"
+      },
+      baseKey,
+      { name: "AES-GCM", length: 256 },
+      false,
+      ["encrypt", "decrypt"]
+    );
+  }
+
+  static async encryptVault(plainObject, pin) {
+    if (!window.crypto || !window.crypto.subtle) return null;
+    const salt = crypto.getRandomValues(new Uint8Array(16));
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const key = await this.deriveKeyFromPIN(pin, salt);
+    const enc = new TextEncoder();
+    const encodedData = enc.encode(JSON.stringify(plainObject));
+    const ciphertext = await crypto.subtle.encrypt(
+      { name: "AES-GCM", iv: iv },
+      key,
+      encodedData
+    );
+    return {
+      salt: Array.from(salt),
+      iv: Array.from(iv),
+      ciphertext: Array.from(new Uint8Array(ciphertext))
+    };
+  }
+
+  static async decryptVault(encryptedEnvelope, pin) {
+    if (!window.crypto || !window.crypto.subtle) return null;
+    const salt = new Uint8Array(encryptedEnvelope.salt);
+    const iv = new Uint8Array(encryptedEnvelope.iv);
+    const ciphertext = new Uint8Array(encryptedEnvelope.ciphertext);
+    const key = await this.deriveKeyFromPIN(pin, salt);
+    const decryptedBuffer = await crypto.subtle.decrypt(
+      { name: "AES-GCM", iv: iv },
+      key,
+      ciphertext
+    );
+    const dec = new TextDecoder();
+    return JSON.parse(dec.decode(decryptedBuffer));
+  }
 }
 
 /**
@@ -1515,7 +1573,22 @@ class AppUI {
     resetTimer();
   }
 
-  lockVault() {
+  async lockVault() {
+    const pin = localStorage.getItem("ctp_vault_pin");
+    if (pin) {
+      try {
+        const vaultPayload = {
+          profile: this.profile,
+          entries: this.entries
+        };
+        const encryptedEnvelope = await CryptoEngine.encryptVault(vaultPayload, pin);
+        if (encryptedEnvelope) {
+          localStorage.setItem("ctp_encrypted_vault", JSON.stringify(encryptedEnvelope));
+        }
+      } catch (err) {
+        console.warn("Vault encryption warning:", err);
+      }
+    }
     const modal = document.getElementById("modal-pin-lock");
     const input = document.getElementById("unlock-pin-input");
     if (modal) {
@@ -1527,11 +1600,26 @@ class AppUI {
     }
   }
 
-  unlockVaultWithPIN() {
+  async unlockVaultWithPIN() {
     const entered = (document.getElementById("unlock-pin-input")?.value || "").trim();
     const stored = localStorage.getItem("ctp_vault_pin");
 
     if (!stored || entered === stored) {
+      const encryptedStr = localStorage.getItem("ctp_encrypted_vault");
+      if (encryptedStr && stored) {
+        try {
+          const envelope = JSON.parse(encryptedStr);
+          const decrypted = await CryptoEngine.decryptVault(envelope, entered);
+          if (decrypted && decrypted.entries) {
+            this.profile = decrypted.profile || this.profile;
+            this.entries = decrypted.entries;
+            this.render();
+          }
+        } catch (err) {
+          alert("Decryption failed: Cryptographic signature mismatch.");
+          return;
+        }
+      }
       const modal = document.getElementById("modal-pin-lock");
       if (modal) modal.style.display = "none";
     } else {
