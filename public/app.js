@@ -481,6 +481,7 @@ class AppUI {
     this.bindProfileHandler();
     this.bindDemoControls();
     this.bindLedgerFilters();
+    this.bindPINSecurity();
 
     await this.storage.init();
     try {
@@ -656,6 +657,9 @@ class AppUI {
     const metrics = TradeEngine.calculateMetrics(this.entries, this.profile);
 
     // Update Header and Hero Stats
+    const headerUserName = document.getElementById("header-user-name");
+    if (headerUserName) headerUserName.textContent = this.profile.name || "New Practitioner";
+
     const headerTier = document.getElementById("header-tier");
     if (headerTier) headerTier.textContent = metrics.tier;
 
@@ -1465,6 +1469,94 @@ class AppUI {
         this.render();
         alert("Practitioner profile saved.");
       });
+    }
+  }
+
+  bindPINSecurity() {
+    const btnSavePIN = document.getElementById("btn-save-pin");
+    const btnLockNow = document.getElementById("btn-lock-vault-now");
+
+    if (btnSavePIN) {
+      btnSavePIN.addEventListener("click", () => {
+        const pinVal = (document.getElementById("vault-pin-input")?.value || "").trim();
+        if (pinVal && (!/^\d{4}$/.test(pinVal))) {
+          alert("PIN must be exactly 4 numeric digits (e.g. 1234).");
+          return;
+        }
+        if (pinVal) {
+          localStorage.setItem("ctp_vault_pin", pinVal);
+          alert("4-digit Vault PIN security lock enabled. Your screen will auto-lock on inactivity or when locking manually.");
+        } else {
+          localStorage.removeItem("ctp_vault_pin");
+          alert("Vault PIN security lock disabled.");
+        }
+      });
+    }
+
+    if (btnLockNow) {
+      btnLockNow.addEventListener("click", () => this.lockVault());
+    }
+
+    // Inactivity Auto-Lock Monitor (15 minutes)
+    let inactivityTimer = null;
+    const resetTimer = () => {
+      clearTimeout(inactivityTimer);
+      if (localStorage.getItem("ctp_vault_pin")) {
+        inactivityTimer = setTimeout(() => this.lockVault(), 15 * 60 * 1000);
+      }
+    };
+
+    window.addEventListener("mousemove", resetTimer);
+    window.addEventListener("keydown", resetTimer);
+    window.addEventListener("touchstart", resetTimer);
+    resetTimer();
+  }
+
+  lockVault() {
+    const modal = document.getElementById("modal-pin-lock");
+    const input = document.getElementById("unlock-pin-input");
+    if (modal) {
+      modal.style.display = "flex";
+      if (input) {
+        input.value = "";
+        input.focus();
+      }
+    }
+  }
+
+  unlockVaultWithPIN() {
+    const entered = (document.getElementById("unlock-pin-input")?.value || "").trim();
+    const stored = localStorage.getItem("ctp_vault_pin");
+
+    if (!stored || entered === stored) {
+      const modal = document.getElementById("modal-pin-lock");
+      if (modal) modal.style.display = "none";
+    } else {
+      alert("Incorrect 4-digit PIN. Access denied.");
+      const input = document.getElementById("unlock-pin-input");
+      if (input) {
+        input.value = "";
+        input.focus();
+      }
+    }
+  }
+
+  unloadAndSwitchVault() {
+    if (confirm("Unload active practitioner logbook from browser memory?")) {
+      const modal = document.getElementById("modal-pin-lock");
+      if (modal) modal.style.display = "none";
+      localStorage.removeItem("ctp_vault_pin");
+      this.profile = {
+        name: "New Practitioner",
+        trade_id: "CTP-APP-2026-0001",
+        supervisor_id: "",
+        pla_hours: 0,
+        rti_hours: 0
+      };
+      this.entries = [];
+      this.render();
+      switchTab("view-settings");
+      alert("Vault unloaded. You can now load another logbook or start a new record.");
     }
   }
 
