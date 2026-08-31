@@ -191,6 +191,14 @@
     {
       "type": "telemetry_export_token",
       "label": "Sanitized Telemetry Manifest Token"
+    },
+    {
+      "type": "form_005_exemption_id",
+      "label": "FORM-005 OSS Exemption / Fork ID"
+    },
+    {
+      "type": "hardware_pulse_token",
+      "label": "Hardware-Enforced Cryptographic Pulse (FIDO2/WebAuthn)"
     }
   ],
   "standards": {
@@ -254,5 +262,5 @@
       }
     ]
   },
-  "framework_version": "1.7.2"
+  "framework_version": "1.8.0"
 }
