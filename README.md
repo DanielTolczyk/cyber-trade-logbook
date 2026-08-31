@@ -72,7 +72,7 @@ The application requires zero server installations on mobile devices. It is dist
 
 ```
 [ STEP 1: INITIAL VISIT ]
-• Open https://danieltolczyk.github.io/cyber-trade-logbook/ on your mobile browser (Safari or Chrome).
+• Open https://the-cyber-trade-project.github.io/cyber-trade-logbook/ on your mobile browser (Safari or Chrome).
 
 [ STEP 2: INSTALL AS STANDALONE APP ]
 • On iOS (Safari): Tap the Share button -> tap "Add to Home Screen".
@@ -86,12 +86,12 @@ The application requires zero server installations on mobile devices. It is dist
 ### B. Computer / Laptop Setup (macOS, Windows, Linux)
 
 * **Option 1 (Web Browser / Desktop PWA):**
-  * Open `https://danieltolczyk.github.io/cyber-trade-logbook/` in Chrome, Edge, Safari, or Firefox.
+  * Open `https://the-cyber-trade-project.github.io/cyber-trade-logbook/` in Chrome, Edge, Safari, or Firefox.
   * In Chrome/Edge, click the **Install** icon in the address bar to run it in standalone desktop app mode.
 * **Option 2 (Air-Gapped / Local Hosting for Isolated Labs):**
   * For isolated forensic enclaves or air-gapped workstations where external internet access is prohibited:
     ```bash
-    git clone https://github.com/DanielTolczyk/cyber-trade-logbook.git
+    git clone https://github.com/the-cyber-trade-project/cyber-trade-logbook.git
     cd cyber-trade-logbook
     uv run python -m http.server 8000 --directory public
     ```
