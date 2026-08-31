@@ -21,18 +21,18 @@ The tool requires zero server setup for daily practitioners:
 
 ### A. Mobile Phone & Tablet Setup (iOS & Android) — 100% Offline PWA
 No terminal commands, compilers, or server processes are required.
-1. **Visit Once:** Open `https://the-cyber-trade-project.github.io/cyber-trade-logbook/` in Safari (iOS) or Chrome (Android).
+1. **Visit Once:** Open `https://the-cyber-trade-project.github.io/logbook/` in Safari (iOS) or Chrome (Android).
 2. **Install to Home Screen:**
    * **iPhone/iPad (Safari):** Tap the **Share** button (box with arrow) -> scroll and tap **"Add to Home Screen"** -> tap **Add**.
    * **Android (Chrome):** Tap the **three dots** menu -> tap **"Install App"** (or **"Add to Home Screen"**).
 3. **Launch & Offline Use:** Tap the app icon on your device home screen. The Service Worker stores the complete application locally. You can use it in airplane mode, subway commutes, or field sites with zero Wi-Fi or cellular service.
 
 ### B. Computer / Laptop Setup (macOS, Windows, Linux)
-* **Web Mode:** Open `https://the-cyber-trade-project.github.io/cyber-trade-logbook/` in any desktop browser.
+* **Web Mode:** Open `https://the-cyber-trade-project.github.io/logbook/` in any desktop browser.
 * **Air-Gapped Local Host Mode:** If operating in an isolated security lab with zero internet:
   ```bash
-  git clone https://github.com/the-cyber-trade-project/cyber-trade-logbook.git
-  cd cyber-trade-logbook
+  git clone https://github.com/the-cyber-trade-project/logbook.git
+  cd logbook
   uv run python -m http.server 8000 --directory public
   ```
   Open `http://localhost:8000` in your browser.
