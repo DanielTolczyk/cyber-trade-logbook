@@ -480,6 +480,7 @@ class AppUI {
     this.bindExportHandlers();
     this.bindProfileHandler();
     this.bindDemoControls();
+    this.bindLedgerFilters();
 
     await this.storage.init();
     try {
@@ -498,19 +499,60 @@ class AppUI {
   }
 
   bindNavigation() {
-    const navItems = document.querySelectorAll(".nav-item");
-    navItems.forEach(item => {
-      const handleNav = (e) => {
+    const handleNavSwitch = (targetViewId) => {
+      document.querySelectorAll(".nav-item").forEach(n => {
+        if (n.dataset.view === targetViewId) n.classList.add("active");
+        else n.classList.remove("active");
+      });
+      document.querySelectorAll(".tab-btn").forEach(t => {
+        if (t.dataset.view === targetViewId) t.classList.add("active");
+        else t.classList.remove("active");
+      });
+      document.querySelectorAll(".view-section").forEach(v => {
+        if (v.id === targetViewId) v.classList.add("active");
+        else v.classList.remove("active");
+      });
+      window.scrollTo(0, 0);
+    };
+
+    document.querySelectorAll(".nav-item").forEach(item => {
+      item.addEventListener("click", (e) => {
         e.preventDefault();
-        navItems.forEach(n => n.classList.remove("active"));
-        document.querySelectorAll(".view-section").forEach(v => v.classList.remove("active"));
-        item.classList.add("active");
-        const targetView = document.getElementById(item.dataset.view);
-        if (targetView) targetView.classList.add("active");
-        window.scrollTo(0, 0);
-      };
-      item.addEventListener("click", handleNav);
+        handleNavSwitch(item.dataset.view);
+      });
     });
+
+    document.querySelectorAll(".tab-btn").forEach(tab => {
+      tab.addEventListener("click", (e) => {
+        e.preventDefault();
+        handleNavSwitch(tab.dataset.view);
+      });
+    });
+  }
+
+  bindLedgerFilters() {
+    const searchInput = document.getElementById("ledger-search");
+    const domainFilter = document.getElementById("ledger-filter-domain");
+    const statusFilter = document.getElementById("ledger-filter-status");
+    const modalityFilter = document.getElementById("ledger-filter-modality");
+    const clearBtn = document.getElementById("btn-clear-ledger-filters");
+
+    const triggerFilter = () => this.renderFullLedger();
+
+    if (searchInput) searchInput.addEventListener("input", triggerFilter);
+    if (domainFilter) domainFilter.addEventListener("change", triggerFilter);
+    if (statusFilter) statusFilter.addEventListener("change", triggerFilter);
+    if (modalityFilter) modalityFilter.addEventListener("change", triggerFilter);
+
+    if (clearBtn) {
+      clearBtn.addEventListener("click", () => {
+        if (searchInput) searchInput.value = "";
+        if (domainFilter) domainFilter.value = "ALL";
+        if (statusFilter) statusFilter.value = "ALL";
+        if (modalityFilter) modalityFilter.value = "ALL";
+        this.renderFullLedger();
+      });
+    }
   }
 
   bindForms() {
@@ -652,7 +694,70 @@ class AppUI {
     }
 
     this.renderEntriesList();
+    this.renderFullLedger();
     this.renderSupervisorQueue();
+  }
+
+  renderFullLedger() {
+    const listEl = document.getElementById("full-ledger-list");
+    const countEl = document.getElementById("ledger-filter-count");
+    if (!listEl) return;
+
+    const searchTerm = (document.getElementById("ledger-search")?.value || "").toLowerCase().trim();
+    const domainFilter = document.getElementById("ledger-filter-domain")?.value || "ALL";
+    const statusFilter = document.getElementById("ledger-filter-status")?.value || "ALL";
+    const modalityFilter = document.getElementById("ledger-filter-modality")?.value || "ALL";
+
+    let filtered = this.entries.filter(e => {
+      if (domainFilter !== "ALL" && e.domain !== domainFilter) return false;
+      if (statusFilter !== "ALL" && e.status !== statusFilter) return false;
+      if (modalityFilter !== "ALL" && e.modality !== modalityFilter) return false;
+      if (searchTerm) {
+        const textToSearch = [
+          e.summary || "",
+          e.artifact_ref || "",
+          e.work_role || "",
+          e.supervisor_name || "",
+          e.supervisor_trade_id || "",
+          e.book_serial || "",
+          e.domain || ""
+        ].join(" ").toLowerCase();
+        if (!textToSearch.includes(searchTerm)) return false;
+      }
+      return true;
+    });
+
+    const totalFilteredHours = filtered.reduce((acc, e) => acc + (parseFloat(e.hours) || 0), 0);
+    const verifiedFilteredHours = filtered
+      .filter(e => e.status === "signed")
+      .reduce((acc, e) => acc + (parseFloat(e.hours) || 0), 0);
+
+    if (countEl) {
+      countEl.textContent = `Showing ${filtered.length} of ${this.entries.length} entries (${totalFilteredHours.toFixed(1)} hrs total, ${verifiedFilteredHours.toFixed(1)} hrs verified)`;
+    }
+
+    if (filtered.length === 0) {
+      listEl.innerHTML = "<p style='color:var(--text-muted); font-size:13px; padding:16px 0; text-align:center;'>No operational entries match your filter criteria.</p>";
+      return;
+    }
+
+    listEl.innerHTML = filtered.map(e => `
+      <div class="entry-item entry-item-clickable" onclick="window.app && window.app.openEntryDetailModal('${e.id}')">
+        <div class="entry-top">
+          <span class="entry-date">${e.date} &bull; <strong style="color:var(--text-primary); font-family:var(--font-sans);">${e.hours} hrs</strong></span>
+          <span class="tag ${e.status === 'signed' ? 'tag-signed' : 'tag-pending'}">${e.status === 'signed' ? 'VERIFIED' : 'PENDING'}</span>
+        </div>
+        <div class="entry-desc">${e.summary || (e.modality === 'physical_bound' ? `Physical Bound Book: ${e.book_serial} (p. ${e.page_number}, l. ${e.line_number})` : 'Operational Defense Execution')}</div>
+        <div class="entry-meta">
+          <span class="tag">${e.domain}</span>
+          <span class="tag">${e.work_role || 'N/A'}</span>
+          <span class="tag ${e.modality === 'physical_bound' ? 'tag-physical' : ''}">${e.modality === 'physical_bound' ? 'PHYSICAL SCIF' : 'DIGITAL W-2'}</span>
+          ${e.artifact_ref ? `<span class="tag" style="font-family:var(--font-mono); font-size:10px;">${e.artifact_ref}</span>` : ''}
+          ${e.supervisor_trade_id ? `<span class="tag" style="color:var(--text-muted);">Sup: ${e.supervisor_trade_id}</span>` : ''}
+          ${e.fatigue_flags && e.fatigue_flags.length > 0 ? `<span class="tag tag-violation">FATIGUE WARNING</span>` : ''}
+        </div>
+      </div>
+    `).join("");
   }
 
   renderEntriesList() {
@@ -663,22 +768,75 @@ class AppUI {
       return;
     }
 
-    listEl.innerHTML = this.entries.map(e => `
-      <div class="entry-item">
+    listEl.innerHTML = this.entries.slice(0, 5).map(e => `
+      <div class="entry-item entry-item-clickable" onclick="window.app && window.app.openEntryDetailModal('${e.id}')">
         <div class="entry-top">
-          <span class="entry-date">${e.date}</span>
-          <span class="entry-hours">${e.hours} hrs</span>
+          <span class="entry-date">${e.date} &bull; <strong style="color:var(--text-primary);">${e.hours} hrs</strong></span>
+          <span class="tag ${e.status === 'signed' ? 'tag-signed' : 'tag-pending'}">${e.status === 'signed' ? 'VERIFIED' : 'PENDING'}</span>
         </div>
         <div class="entry-desc">${e.summary || (e.modality === 'physical_bound' ? `Physical Book: ${e.book_serial} (p. ${e.page_number}, l. ${e.line_number})` : 'Operational Defense Execution')}</div>
         <div class="entry-meta">
           <span class="tag">${e.domain}</span>
           <span class="tag">${e.work_role || 'N/A'}</span>
           <span class="tag ${e.modality === 'physical_bound' ? 'tag-physical' : ''}">${e.modality.toUpperCase()}</span>
-          <span class="tag ${e.status === 'signed' ? 'tag-signed' : 'tag-pending'}">${e.status.toUpperCase()}</span>
+          ${e.artifact_ref ? `<span class="tag" style="font-family:var(--font-mono); font-size:10px;">${e.artifact_ref}</span>` : ''}
           ${e.fatigue_flags && e.fatigue_flags.length > 0 ? `<span class="tag tag-violation">FATIGUE WARNING</span>` : ''}
         </div>
       </div>
     `).join("");
+  }
+
+  openEntryDetailModal(entryId) {
+    const entry = this.entries.find(e => e.id === entryId);
+    if (!entry) return;
+
+    this.selectedEntry = entry;
+
+    const modal = document.getElementById("modal-entry-detail");
+    if (!modal) return;
+
+    const badgeEl = document.getElementById("modal-detail-domain-badge");
+    const dateEl = document.getElementById("modal-detail-date");
+    const hoursEl = document.getElementById("modal-detail-hours");
+    const workroleEl = document.getElementById("modal-detail-workrole");
+    const statusEl = document.getElementById("modal-detail-status");
+    const summaryEl = document.getElementById("modal-detail-summary");
+    const artifactEl = document.getElementById("modal-detail-artifact");
+    const hashEl = document.getElementById("modal-detail-hash");
+    const prevHashEl = document.getElementById("modal-detail-prev-hash");
+    const supervisorEl = document.getElementById("modal-detail-supervisor");
+
+    if (badgeEl) badgeEl.textContent = entry.domain || "OPERATIONAL DOMAIN";
+    if (dateEl) dateEl.textContent = entry.date;
+    if (hoursEl) hoursEl.textContent = `${entry.hours} hrs`;
+    if (workroleEl) workroleEl.textContent = entry.work_role || "PR-CDO-001 (NICE)";
+    if (statusEl) {
+      statusEl.textContent = (entry.status || "PENDING").toUpperCase();
+      statusEl.style.color = entry.status === "signed" ? "var(--accent-emerald)" : "var(--accent-amber)";
+    }
+    if (summaryEl) {
+      summaryEl.textContent = entry.summary || (entry.modality === "physical_bound" ? `Physical Book Entry: ${entry.book_serial} (Page ${entry.page_number}, Line ${entry.line_number})` : "Operational Defense Execution");
+    }
+    if (artifactEl) {
+      artifactEl.textContent = entry.artifact_ref ? `${entry.artifact_type || 'ref'}: ${entry.artifact_ref}` : "Physical Logbook Attestation";
+    }
+    if (hashEl) hashEl.textContent = entry.entry_hash || "GENESIS_NODE_CHAIN";
+    if (prevHashEl) prevHashEl.textContent = entry.prev_entry_hash || "GENESIS";
+    if (supervisorEl) {
+      supervisorEl.textContent = entry.supervisor_name ? `${entry.supervisor_name} (${entry.supervisor_trade_id || 'N/A'})` : (entry.supervisor_trade_id || "Awaiting Supervisor Handshake");
+    }
+
+    modal.style.display = "flex";
+  }
+
+  copyEntryRawJSON() {
+    if (!this.selectedEntry) return;
+    const jsonStr = JSON.stringify(this.selectedEntry, null, 2);
+    navigator.clipboard.writeText(jsonStr).then(() => {
+      alert("Canonical Entry JSON copied to clipboard.");
+    }).catch(() => {
+      alert("Could not copy to clipboard.");
+    });
   }
 
   renderSupervisorQueue() {

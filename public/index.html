@@ -8,31 +8,98 @@
   <meta name="theme-color" content="#0ea5e9">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <link rel="stylesheet" href="styles.css?v=3.1.0">
+  <link rel="stylesheet" href="styles.css?v=3.2.0">
 </head>
 <body>
 
-  <!-- Top Sticky Header -->
-  <header class="top-header">
-    <a href="https://danieltolczyk.github.io/the-cyber-trade-project/" target="_blank" rel="noopener" class="brand-wrap" style="text-decoration:none; color:inherit;">
-      <div class="brand-badge">CTP</div>
-      <span class="brand-title">Trade Logbook</span>
-    </a>
-    <div class="user-profile-badge" style="display:flex; align-items:center; gap:8px;">
-      <a href="https://danieltolczyk.github.io/the-cyber-trade-project/" target="_blank" rel="noopener" class="tag" style="text-decoration:none; color:var(--accent-cyan); border-color:rgba(14,165,233,0.3); font-size:10px; display:inline-flex; align-items:center;">Trade Framework ↗</a>
-      <span class="tier-tag" id="header-tier">Tier 1 Apprentice</span>
+  <!-- Top Portal Utility Header -->
+  <header class="portal-header">
+    <div class="portal-header-inner">
+      <a href="https://danieltolczyk.github.io/the-cyber-trade-project/" class="portal-brand">
+        <span class="portal-brand-title">THE CYBERSECURITY TRADE PROJECT</span>
+      </a>
+      <div class="portal-header-tools">
+        <div class="dropdown">
+          <button class="tool-link dropdown-toggle" type="button" aria-haspopup="true" aria-expanded="false">
+            <span>Ecosystem Tools</span>
+            <span class="dropdown-arrow">▾</span>
+          </button>
+          <div class="dropdown-menu">
+            <a href="https://danieltolczyk.github.io/the-cyber-trade-project/" class="dropdown-item">
+              <span class="item-title">Documentation Portal</span>
+              <span class="item-desc">Explore framework &amp; governance</span>
+            </a>
+            <a href="https://danieltolczyk.github.io/cyber-trade-estimator/" class="dropdown-item">
+              <span class="item-title">Career Estimator</span>
+              <span class="item-desc">Calculate trade tier &amp; PLA hours</span>
+            </a>
+            <a href="https://danieltolczyk.github.io/cyber-trade-logbook/" class="dropdown-item active">
+              <span class="item-title">Digital Logbook</span>
+              <span class="item-desc">Cryptographic runtime attestation PWA</span>
+            </a>
+          </div>
+        </div>
+        <a href="https://github.com/DanielTolczyk/the-cyber-trade-project/discussions" target="_blank" rel="noopener" class="tool-link">
+          <span>Discussions</span>
+        </a>
+        <a href="https://github.com/DanielTolczyk/the-cyber-trade-project" target="_blank" rel="noopener" class="tool-link">
+          <span>GitHub</span>
+        </a>
+        <div class="user-profile-badge">
+          <span class="tier-tag" id="header-tier">Tier 1 Apprentice</span>
+        </div>
+      </div>
     </div>
   </header>
 
-  <!-- Persistent Demo Banner (Visible Only in Demo Mode) -->
-  <div id="demo-mode-banner" class="demo-banner" style="display:none;">
-    <span id="demo-banner-text">DEMO MODE: Apprentice Persona (Jane Doe)</span>
-    <div class="demo-banner-actions">
-      <a href="https://danieltolczyk.github.io/the-cyber-trade-project/" target="_blank" rel="noopener" class="demo-btn-sm" style="text-decoration:none; display:inline-flex; align-items:center;">Trade Framework ↗</a>
-      <button id="btn-demo-switch" class="demo-btn-sm" onclick="window.app && window.app.toggleDemoPersona()">Switch Persona</button>
-      <button id="btn-demo-exit" class="demo-btn-sm" onclick="window.app && window.app.exitDemoMode()">Exit to Real Mode</button>
+  <!-- Title Banner -->
+  <div class="page-title-banner">
+    <div class="container">
+      <div class="title-meta">
+        <span class="version-badge">LEDGER v1.1.0 &bull; FRAMEWORK v1.7.0</span>
+        <h1>Universal Digital Logbook &amp; Runtime Ledger</h1>
+      </div>
+      <p class="subtitle">Offline-first operational hour logging, line-of-sight supervisor attestations, and cryptographic audit bundle exports for registered cyber trades.</p>
     </div>
   </div>
+
+  <!-- Persistent Demo Banner (Visible Only in Demo Mode) -->
+  <div id="demo-mode-banner" class="demo-banner" style="display:none;">
+    <div class="container" style="display:flex; justify-content:space-between; align-items:center;">
+      <span id="demo-banner-text">DEMO MODE: Apprentice Persona (Jane Doe)</span>
+      <div class="demo-banner-actions">
+        <button id="btn-demo-switch" class="demo-btn-sm" onclick="window.app && window.app.toggleDemoPersona()">Switch Persona</button>
+        <button id="btn-demo-exit" class="demo-btn-sm" onclick="window.app && window.app.exitDemoMode()">Exit to Real Mode</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Desktop Navigation Ribbon (Visible on PC/Tablets) -->
+  <nav class="desktop-nav-tabs">
+    <div class="container desktop-tabs-inner">
+      <button class="tab-btn active" data-view="view-dashboard" onclick="switchTab('view-dashboard')">
+        <span>Dashboard</span>
+      </button>
+      <button class="tab-btn" data-view="view-ledger" onclick="switchTab('view-ledger')">
+        <span>Full Ledger &amp; Search</span>
+      </button>
+      <button class="tab-btn" data-view="view-log" onclick="switchTab('view-log')">
+        <span>Log Hours</span>
+      </button>
+      <button class="tab-btn" data-view="view-physical" onclick="switchTab('view-physical')">
+        <span>Physical Book</span>
+      </button>
+      <button class="tab-btn" data-view="view-supervisor" onclick="switchTab('view-supervisor')">
+        <span>Supervisor Queue</span>
+      </button>
+      <button class="tab-btn" data-view="view-export" onclick="switchTab('view-export')">
+        <span>Audit Exports</span>
+      </button>
+      <button class="tab-btn" data-view="view-settings" onclick="switchTab('view-settings')">
+        <span>Settings</span>
+      </button>
+    </div>
+  </nav>
 
   <!-- Main App Views -->
   <main class="container">
@@ -133,9 +200,69 @@
         </div>
       </div>
 
-      <!-- Recent Entries -->
-      <h3 style="font-size:14px; text-transform:uppercase; color:var(--text-secondary); margin-top:20px; margin-bottom:10px;">Recent Operational Activity</h3>
+      <!-- Recent Entries Header with Full Ledger Link -->
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:24px; margin-bottom:10px;">
+        <h3 style="font-size:14px; text-transform:uppercase; color:var(--text-secondary);">Recent Operational Activity</h3>
+        <button class="btn btn-outline" style="font-size:11px; padding:4px 10px;" onclick="switchTab('view-ledger')">View Full Ledger &amp; Search &rarr;</button>
+      </div>
       <div id="recent-entries-list" class="entry-list"></div>
+    </section>
+
+    <!-- VIEW: FULL LEDGER & INSPECTION -->
+    <section id="view-ledger" class="view-section">
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:14px;">
+          <div>
+            <h2 class="card-title" style="margin-bottom:2px;">Full Operational Ledger &amp; Inspection</h2>
+            <p style="color:var(--text-secondary); font-size:12px;">Traverse verified runtime entries, cryptographic SHA-256 signatures, and supervisor attestations.</p>
+          </div>
+          <button class="btn btn-primary" onclick="switchTab('view-log')">+ Log Shift Hours</button>
+        </div>
+
+        <!-- Filter & Search Toolbar -->
+        <div class="ledger-filter-toolbar">
+          <div class="filter-row">
+            <div class="filter-group search-input-group">
+              <label class="form-label">Search Ledger</label>
+              <input type="text" id="ledger-search" class="form-control" placeholder="Search summary, ticket ID, commit SHA, supervisor...">
+            </div>
+            <div class="filter-group">
+              <label class="form-label">Domain</label>
+              <select id="ledger-filter-domain" class="form-control form-select">
+                <option value="ALL">All 5 Rotational Domains</option>
+                <option value="D1_PERIMETER_CLOUD">D1: Perimeter &amp; Cloud (1,500h)</option>
+                <option value="D2_SYSTEM_HYGIENE">D2: Detection &amp; SOC (2,000h)</option>
+                <option value="D3_IDENTITY_ACCESS">D3: Identity &amp; IAM (1,500h)</option>
+                <option value="D4_VULN_MANAGEMENT">D4: Vulnerability Mgmt (1,500h)</option>
+                <option value="D5_DEFENSIVE_GRC">D5: Defensive GRC (1,500h)</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label class="form-label">Status</label>
+              <select id="ledger-filter-status" class="form-control form-select">
+                <option value="ALL">All Attestation Statuses</option>
+                <option value="signed">Verified &amp; Signed by Journeyman</option>
+                <option value="pending">Pending Supervisor Attestation</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label class="form-label">Modality</label>
+              <select id="ledger-filter-modality" class="form-control form-select">
+                <option value="ALL">All Modalities</option>
+                <option value="digital">Digital Telemetry (W-2 / Cloud)</option>
+                <option value="physical_bound">Physical Bound Book (SCIF)</option>
+              </select>
+            </div>
+          </div>
+          <div class="filter-summary-row">
+            <span id="ledger-filter-count" class="filter-stat-badge">Showing 0 entries (0.0 hrs)</span>
+            <button id="btn-clear-ledger-filters" class="btn-text" style="font-size:11px; color:var(--text-muted); cursor:pointer;">Reset Filters</button>
+          </div>
+        </div>
+
+        <!-- Full Ledger Entries Table / List -->
+        <div id="full-ledger-list" class="entry-list full-ledger-container"></div>
+      </div>
     </section>
 
     <!-- VIEW 2: LOG DIGITAL HOURS -->
@@ -419,23 +546,91 @@
     </div>
   </div>
 
+  <!-- Modal 3: Entry Detail & Cryptographic Inspection Modal -->
+  <div id="modal-entry-detail" class="modal-backdrop" style="display:none;">
+    <div class="modal-content" style="max-width:580px;">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
+        <div>
+          <span class="version-badge" id="modal-detail-domain-badge">DOMAIN 1</span>
+          <h3 id="modal-detail-title" style="font-size:16px; font-weight:700; margin-top:4px;">Operational Entry Inspection</h3>
+        </div>
+        <button class="btn btn-outline btn-sm" onclick="document.getElementById('modal-entry-detail').style.display='none'">Close &times;</button>
+      </div>
+
+      <div class="modal-detail-body">
+        <div class="detail-grid">
+          <div class="detail-field">
+            <label>Shift Date</label>
+            <div id="modal-detail-date" class="field-val">2026-08-28</div>
+          </div>
+          <div class="detail-field">
+            <label>Duration Logged</label>
+            <div id="modal-detail-hours" class="field-val">4.50 hrs</div>
+          </div>
+          <div class="detail-field">
+            <label>Work Role ID (NICE)</label>
+            <div id="modal-detail-workrole" class="field-val">PR-CDO-001</div>
+          </div>
+          <div class="detail-field">
+            <label>Attestation Status</label>
+            <div id="modal-detail-status" class="field-val">SIGNED</div>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <label>Sanitized Task Summary</label>
+          <p id="modal-detail-summary" class="summary-box">Implemented automated WAF rule...</p>
+        </div>
+
+        <div class="detail-section">
+          <label>Artifact Verification Reference</label>
+          <div id="modal-detail-artifact" class="code-box">git_commit_sha: 9a8b7c...</div>
+        </div>
+
+        <div class="detail-section">
+          <label>Cryptographic Entry SHA-256 Hash (Merkle Node)</label>
+          <div id="modal-detail-hash" class="code-box mono">e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855</div>
+        </div>
+
+        <div class="detail-section">
+          <label>Previous Entry Hash (Chained)</label>
+          <div id="modal-detail-prev-hash" class="code-box mono">0000000000000000000000000000000000000000000000000000000000000000</div>
+        </div>
+
+        <div id="modal-detail-supervisor-box" class="detail-section">
+          <label>Supervisor Attestation &amp; Trade License</label>
+          <div id="modal-detail-supervisor" class="field-val">Marcus Vance (CTP-JRN-2024-0192)</div>
+        </div>
+
+        <div style="display:flex; gap:10px; margin-top:14px;">
+          <button class="btn btn-secondary" style="flex:1;" onclick="window.app && window.app.copyEntryRawJSON()">Copy Canonical JSON</button>
+          <button class="btn btn-primary" style="flex:1;" onclick="document.getElementById('modal-entry-detail').style.display='none'">Done</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Mobile Bottom Navigation -->
   <nav class="bottom-nav">
     <button class="nav-item active" data-view="view-dashboard" onclick="switchTab('view-dashboard')">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
       <span>Dashboard</span>
     </button>
+    <button class="nav-item" data-view="view-ledger" onclick="switchTab('view-ledger')">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"></rect><line x1="3" y1="10" x2="21" y2="10"></line><line x1="9" y1="20" x2="9" y2="10"></line></svg>
+      <span>Ledger</span>
+    </button>
     <button class="nav-item" data-view="view-log" onclick="switchTab('view-log')">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-      <span>Log Hours</span>
+      <span>Log</span>
     </button>
     <button class="nav-item" data-view="view-physical" onclick="switchTab('view-physical')">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
-      <span>Physical</span>
+      <span>Book</span>
     </button>
     <button class="nav-item" data-view="view-supervisor" onclick="switchTab('view-supervisor')">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><polyline points="17 11 19 13 23 9"></polyline></svg>
-      <span>Supervisor</span>
+      <span>Verify</span>
     </button>
     <button class="nav-item" data-view="view-export" onclick="switchTab('view-export')">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
@@ -456,6 +651,13 @@
           btn.classList.remove('active');
         }
       });
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        if (btn.getAttribute('data-view') === viewId) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
       document.querySelectorAll('.view-section').forEach(sec => {
         if (sec.id === viewId) {
           sec.classList.add('active');
@@ -466,11 +668,11 @@
       window.scrollTo(0, 0);
     }
   </script>
-  <script src="app.js?v=3.1.0"></script>
+  <script src="app.js?v=3.2.0"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js?v=3.1.0').catch(err => {
+        navigator.serviceWorker.register('sw.js?v=3.2.0').catch(err => {
           console.log('ServiceWorker registration skipped:', err);
         });
       });
