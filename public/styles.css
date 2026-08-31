@@ -289,8 +289,9 @@ body {
 /* Desktop Navigation Ribbon */
 .desktop-nav-tabs {
   display: none;
-  background-color: var(--bg-secondary);
+  background-color: #0d1322;
   border-bottom: 1px solid var(--border-color);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
 }
 
 @media (min-width: 768px) {
@@ -300,37 +301,41 @@ body {
 }
 
 .desktop-tabs-inner {
-  display: flex;
-  gap: 4px;
-  overflow-x: auto;
-  padding: 6px 1rem;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
+  padding: 8px 1rem;
 }
 
 .tab-btn {
-  background: none;
-  border: 1px solid transparent;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
   color: var(--text-secondary);
   font-size: 13px;
   font-weight: 600;
-  display: inline-flex;
+  display: flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
-  padding: 8px 14px;
+  padding: 9px 12px;
   border-radius: var(--radius-sm);
   cursor: pointer;
   transition: all 0.15s ease;
   white-space: nowrap;
+  text-align: center;
 }
 
 .tab-btn:hover {
   color: #fff;
-  background-color: rgba(255, 255, 255, 0.05);
+  background-color: var(--bg-card-hover);
+  border-color: var(--border-subtle);
 }
 
 .tab-btn.active {
   color: var(--accent-cyan);
   background-color: rgba(14, 165, 233, 0.12);
-  border-color: rgba(14, 165, 233, 0.3);
+  border-color: var(--accent-cyan);
+  font-weight: 700;
 }
 
 /* Main Container */
