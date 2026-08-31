@@ -8,7 +8,13 @@
   <meta name="theme-color" content="#0ea5e9">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <link rel="stylesheet" href="styles.css?v=3.3.5">
+  
+  <!-- Defensive Security & Content Protection Directives -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self'; base-uri 'self'; form-action 'self';">
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), interest-cohort=()">
+
+  <link rel="stylesheet" href="styles.css?v=3.3.6">
 </head>
 <body>
 
@@ -39,10 +45,10 @@
             </a>
           </div>
         </div>
-        <a href="https://github.com/DanielTolczyk/the-cyber-trade-project/discussions" target="_blank" rel="noopener" class="tool-link">
+        <a href="https://github.com/DanielTolczyk/the-cyber-trade-project/discussions" target="_blank" rel="noopener noreferrer" class="tool-link">
           <span>Discussions</span>
         </a>
-        <a href="https://github.com/DanielTolczyk/the-cyber-trade-project" target="_blank" rel="noopener" class="tool-link">
+        <a href="https://github.com/DanielTolczyk/the-cyber-trade-project" target="_blank" rel="noopener noreferrer" class="tool-link">
           <span>GitHub</span>
         </a>
       </div>
@@ -526,10 +532,10 @@
           Standardized trade architecture, statutory rights, and open-source tooling.
         </p>
         <div style="display:flex; flex-direction:column; gap:8px;">
-          <a href="https://github.com/DanielTolczyk/the-cyber-trade-project" target="_blank" rel="noopener" class="btn btn-secondary" style="text-decoration:none; text-align:center; display:block;">The Cybersecurity Trade Project (Framework Specs) ↗</a>
-          <a href="https://danieltolczyk.github.io/cyber-trade-estimator/" target="_blank" rel="noopener" class="btn btn-secondary" style="text-decoration:none; text-align:center; display:block;">Tier & Grandfathering Placement Estimator ↗</a>
-          <a href="https://github.com/DanielTolczyk/the-cyber-trade-project/blob/main/framework/logbook-standards.md" target="_blank" rel="noopener" class="btn btn-secondary" style="text-decoration:none; text-align:center; display:block;">Logbook Standards & Invariants (RFC) ↗</a>
-          <a href="https://github.com/DanielTolczyk/the-cyber-trade-project/blob/main/framework/logbook-schema.md" target="_blank" rel="noopener" class="btn btn-secondary" style="text-decoration:none; text-align:center; display:block;">Canonical JSON Schema Specification ↗</a>
+          <a href="https://github.com/DanielTolczyk/the-cyber-trade-project" target="_blank" rel="noopener noreferrer" class="btn btn-secondary" style="text-decoration:none; text-align:center; display:block;">The Cybersecurity Trade Project (Framework Specs) ↗</a>
+          <a href="https://danieltolczyk.github.io/cyber-trade-estimator/" target="_blank" rel="noopener noreferrer" class="btn btn-secondary" style="text-decoration:none; text-align:center; display:block;">Tier & Grandfathering Placement Estimator ↗</a>
+          <a href="https://github.com/DanielTolczyk/the-cyber-trade-project/blob/main/framework/logbook-standards.md" target="_blank" rel="noopener noreferrer" class="btn btn-secondary" style="text-decoration:none; text-align:center; display:block;">Logbook Standards & Invariants (RFC) ↗</a>
+          <a href="https://github.com/DanielTolczyk/the-cyber-trade-project/blob/main/framework/logbook-schema.md" target="_blank" rel="noopener noreferrer" class="btn btn-secondary" style="text-decoration:none; text-align:center; display:block;">Canonical JSON Schema Specification ↗</a>
         </div>
       </div>
 

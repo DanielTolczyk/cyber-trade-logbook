@@ -11,6 +11,16 @@
 const DB_NAME = "CyberTradeLogbookDB";
 const DB_VERSION = 1;
 
+function escapeHTML(str) {
+  if (str === null || str === undefined) return "";
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
 function generateUUID() {
   if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
     return crypto.randomUUID();
@@ -815,18 +825,18 @@ class AppUI {
     }
 
     listEl.innerHTML = filtered.map(e => `
-      <div class="entry-item entry-item-clickable" onclick="window.app && window.app.openEntryDetailModal('${e.id}')">
+      <div class="entry-item entry-item-clickable" onclick="window.app && window.app.openEntryDetailModal('${escapeHTML(e.id)}')">
         <div class="entry-top">
-          <span class="entry-date">${e.date} &bull; <strong style="color:var(--text-primary); font-family:var(--font-sans);">${e.hours} hrs</strong></span>
+          <span class="entry-date">${escapeHTML(e.date)} &bull; <strong style="color:var(--text-primary); font-family:var(--font-sans);">${escapeHTML(e.hours)} hrs</strong></span>
           <span class="tag ${e.status === 'signed' ? 'tag-signed' : 'tag-pending'}">${e.status === 'signed' ? 'VERIFIED' : 'PENDING'}</span>
         </div>
-        <div class="entry-desc">${e.summary || (e.modality === 'physical_bound' ? `Physical Bound Book: ${e.book_serial} (p. ${e.page_number}, l. ${e.line_number})` : 'Operational Defense Execution')}</div>
+        <div class="entry-desc">${escapeHTML(e.summary || (e.modality === 'physical_bound' ? `Physical Bound Book: ${e.book_serial} (p. ${e.page_number}, l. ${e.line_number})` : 'Operational Defense Execution'))}</div>
         <div class="entry-meta">
-          <span class="tag">${e.domain}</span>
-          <span class="tag">${e.work_role || 'N/A'}</span>
+          <span class="tag">${escapeHTML(e.domain)}</span>
+          <span class="tag">${escapeHTML(e.work_role || 'N/A')}</span>
           <span class="tag ${e.modality === 'physical_bound' ? 'tag-physical' : ''}">${e.modality === 'physical_bound' ? 'PHYSICAL SCIF' : 'DIGITAL W-2'}</span>
-          ${e.artifact_ref ? `<span class="tag" style="font-family:var(--font-mono); font-size:10px;">${e.artifact_ref}</span>` : ''}
-          ${e.supervisor_trade_id ? `<span class="tag" style="color:var(--text-muted);">Sup: ${e.supervisor_trade_id}</span>` : ''}
+          ${e.artifact_ref ? `<span class="tag" style="font-family:var(--font-mono); font-size:10px;">${escapeHTML(e.artifact_ref)}</span>` : ''}
+          ${e.supervisor_trade_id ? `<span class="tag" style="color:var(--text-muted);">Sup: ${escapeHTML(e.supervisor_trade_id)}</span>` : ''}
           ${e.fatigue_flags && e.fatigue_flags.length > 0 ? `<span class="tag tag-violation">FATIGUE WARNING</span>` : ''}
         </div>
       </div>
@@ -842,17 +852,17 @@ class AppUI {
     }
 
     listEl.innerHTML = this.entries.slice(0, 5).map(e => `
-      <div class="entry-item entry-item-clickable" onclick="window.app && window.app.openEntryDetailModal('${e.id}')">
+      <div class="entry-item entry-item-clickable" onclick="window.app && window.app.openEntryDetailModal('${escapeHTML(e.id)}')">
         <div class="entry-top">
-          <span class="entry-date">${e.date} &bull; <strong style="color:var(--text-primary);">${e.hours} hrs</strong></span>
+          <span class="entry-date">${escapeHTML(e.date)} &bull; <strong style="color:var(--text-primary);">${escapeHTML(e.hours)} hrs</strong></span>
           <span class="tag ${e.status === 'signed' ? 'tag-signed' : 'tag-pending'}">${e.status === 'signed' ? 'VERIFIED' : 'PENDING'}</span>
         </div>
-        <div class="entry-desc">${e.summary || (e.modality === 'physical_bound' ? `Physical Book: ${e.book_serial} (p. ${e.page_number}, l. ${e.line_number})` : 'Operational Defense Execution')}</div>
+        <div class="entry-desc">${escapeHTML(e.summary || (e.modality === 'physical_bound' ? `Physical Book: ${e.book_serial} (p. ${e.page_number}, l. ${e.line_number})` : 'Operational Defense Execution'))}</div>
         <div class="entry-meta">
-          <span class="tag">${e.domain}</span>
-          <span class="tag">${e.work_role || 'N/A'}</span>
-          <span class="tag ${e.modality === 'physical_bound' ? 'tag-physical' : ''}">${e.modality.toUpperCase()}</span>
-          ${e.artifact_ref ? `<span class="tag" style="font-family:var(--font-mono); font-size:10px;">${e.artifact_ref}</span>` : ''}
+          <span class="tag">${escapeHTML(e.domain)}</span>
+          <span class="tag">${escapeHTML(e.work_role || 'N/A')}</span>
+          <span class="tag ${e.modality === 'physical_bound' ? 'tag-physical' : ''}">${escapeHTML(e.modality ? e.modality.toUpperCase() : 'DIGITAL')}</span>
+          ${e.artifact_ref ? `<span class="tag" style="font-family:var(--font-mono); font-size:10px;">${escapeHTML(e.artifact_ref)}</span>` : ''}
           ${e.fatigue_flags && e.fatigue_flags.length > 0 ? `<span class="tag tag-violation">FATIGUE WARNING</span>` : ''}
         </div>
       </div>
@@ -998,7 +1008,7 @@ class AppUI {
     // SUPERVISOR MODE: Authorized Journeyman / Master Studio
     let html = `
       <div style="background:rgba(16,185,129,0.15); border:1px solid rgba(16,185,129,0.4); padding:12px; border-radius:8px; margin-bottom:14px; font-size:12px; line-height:1.4;">
-        <strong>Supervising Journeyman Standing (${this.profile.trade_id}):</strong> Authorized to review apprentice runtime and sign cryptographically bound Ed25519 attestations.
+        <strong>Supervising Journeyman Standing (${escapeHTML(this.profile.trade_id)}):</strong> Authorized to review apprentice runtime and sign cryptographically bound Ed25519 attestations.
       </div>
       <div style="margin-bottom:14px;">
         <button class="btn btn-primary btn-block" onclick="window.app.openScannerModal('apprentice_request')">Scan Apprentice Request QR</button>
@@ -1017,10 +1027,10 @@ class AppUI {
           ${pending.map(p => `
             <div class="entry-item">
               <div class="entry-top">
-                <span class="entry-date">${p.date} &bull; ${p.domain}</span>
-                <span class="entry-hours">${p.hours} hrs</span>
+                <span class="entry-date">${escapeHTML(p.date)} &bull; ${escapeHTML(p.domain)}</span>
+                <span class="entry-hours">${escapeHTML(p.hours)} hrs</span>
               </div>
-              <div class="entry-desc">${p.summary || p.artifact_ref}</div>
+              <div class="entry-desc">${escapeHTML(p.summary || p.artifact_ref)}</div>
             </div>
           `).join("")}
         </div>
@@ -1491,9 +1501,7 @@ class AppUI {
         reader.onload = async (event) => {
           try {
             const vaultData = JSON.parse(event.target.result);
-            if (!vaultData.entries || !Array.isArray(vaultData.entries)) {
-              throw new Error("Invalid vault file structure: missing entries array.");
-            }
+            this.validateImportPayload(vaultData);
 
             if (vaultData.practitioner) {
               this.profile = vaultData.practitioner;
@@ -1514,6 +1522,27 @@ class AppUI {
         reader.readAsText(file);
       });
     }
+  }
+
+  validateImportPayload(vaultData) {
+    if (!vaultData || typeof vaultData !== "object") {
+      throw new Error("Invalid format: payload must be a JSON object.");
+    }
+    if (!vaultData.entries || !Array.isArray(vaultData.entries)) {
+      throw new Error("Invalid vault file structure: missing entries array.");
+    }
+    for (const entry of vaultData.entries) {
+      if (!entry.id || typeof entry.id !== "string") {
+        throw new Error("Invalid entry: missing or non-string id.");
+      }
+      if (!entry.date || typeof entry.date !== "string") {
+        throw new Error("Invalid entry: missing or non-string date.");
+      }
+      if (entry.hours === undefined || isNaN(parseFloat(entry.hours))) {
+        throw new Error("Invalid entry: missing or non-numeric hours.");
+      }
+    }
+    return true;
   }
 
   bindProfileHandler() {
@@ -1538,17 +1567,29 @@ class AppUI {
     const btnLockNow = document.getElementById("btn-lock-vault-now");
 
     if (btnSavePIN) {
-      btnSavePIN.addEventListener("click", () => {
+      btnSavePIN.addEventListener("click", async () => {
         const pinVal = (document.getElementById("vault-pin-input")?.value || "").trim();
         if (pinVal && (!/^\d{4}$/.test(pinVal))) {
           alert("PIN must be exactly 4 numeric digits (e.g. 1234).");
           return;
         }
         if (pinVal) {
-          localStorage.setItem("ctp_vault_pin", pinVal);
-          alert("4-digit Vault PIN security lock enabled. Your screen will auto-lock on inactivity or when locking manually.");
+          try {
+            const authPayload = { valid: true, timestamp: Date.now() };
+            const encryptedAuth = await CryptoEngine.encryptVault(authPayload, pinVal);
+            localStorage.setItem("ctp_vault_auth_envelope", JSON.stringify(encryptedAuth));
+            localStorage.setItem("ctp_vault_lock_enabled", "true");
+            localStorage.removeItem("ctp_vault_pin");
+            this.activePinSession = pinVal;
+            alert("4-digit Vault PIN security lock enabled. Your screen will auto-lock on inactivity or when locking manually.");
+          } catch (e) {
+            alert("Failed to initialize cryptographic lock: " + e.message);
+          }
         } else {
+          localStorage.removeItem("ctp_vault_auth_envelope");
+          localStorage.removeItem("ctp_vault_lock_enabled");
           localStorage.removeItem("ctp_vault_pin");
+          this.activePinSession = null;
           alert("Vault PIN security lock disabled.");
         }
       });
@@ -1562,7 +1603,7 @@ class AppUI {
     let inactivityTimer = null;
     const resetTimer = () => {
       clearTimeout(inactivityTimer);
-      if (localStorage.getItem("ctp_vault_pin")) {
+      if (localStorage.getItem("ctp_vault_lock_enabled") === "true") {
         inactivityTimer = setTimeout(() => this.lockVault(), 15 * 60 * 1000);
       }
     };
@@ -1574,20 +1615,24 @@ class AppUI {
   }
 
   async lockVault() {
-    const pin = localStorage.getItem("ctp_vault_pin");
-    if (pin) {
-      try {
-        const vaultPayload = {
-          profile: this.profile,
-          entries: this.entries
-        };
-        const encryptedEnvelope = await CryptoEngine.encryptVault(vaultPayload, pin);
-        if (encryptedEnvelope) {
-          localStorage.setItem("ctp_encrypted_vault", JSON.stringify(encryptedEnvelope));
+    if (localStorage.getItem("ctp_vault_lock_enabled") === "true") {
+      if (this.activePinSession) {
+        try {
+          const vaultPayload = {
+            profile: this.profile,
+            entries: this.entries
+          };
+          const encryptedEnvelope = await CryptoEngine.encryptVault(vaultPayload, this.activePinSession);
+          if (encryptedEnvelope) {
+            localStorage.setItem("ctp_encrypted_vault", JSON.stringify(encryptedEnvelope));
+          }
+        } catch (err) {
+          console.warn("Vault encryption warning:", err);
         }
-      } catch (err) {
-        console.warn("Vault encryption warning:", err);
       }
+      this.activePinSession = null;
+      this.entries = [];
+      this.render();
     }
     const modal = document.getElementById("modal-pin-lock");
     const input = document.getElementById("unlock-pin-input");
@@ -1602,33 +1647,49 @@ class AppUI {
 
   async unlockVaultWithPIN() {
     const entered = (document.getElementById("unlock-pin-input")?.value || "").trim();
-    const stored = localStorage.getItem("ctp_vault_pin");
+    const authEnvStr = localStorage.getItem("ctp_vault_auth_envelope");
 
-    if (!stored || entered === stored) {
+    if (authEnvStr) {
+      try {
+        const authEnv = JSON.parse(authEnvStr);
+        const authDecrypted = await CryptoEngine.decryptVault(authEnv, entered);
+        if (!authDecrypted || !authDecrypted.valid) {
+          throw new Error("Invalid PIN authentication challenge");
+        }
+      } catch (err) {
+        alert("Incorrect 4-digit PIN. Access denied.");
+        const input = document.getElementById("unlock-pin-input");
+        if (input) {
+          input.value = "";
+          input.focus();
+        }
+        return;
+      }
+
+      this.activePinSession = entered;
       const encryptedStr = localStorage.getItem("ctp_encrypted_vault");
-      if (encryptedStr && stored) {
+      if (encryptedStr) {
         try {
           const envelope = JSON.parse(encryptedStr);
           const decrypted = await CryptoEngine.decryptVault(envelope, entered);
           if (decrypted && decrypted.entries) {
             this.profile = decrypted.profile || this.profile;
             this.entries = decrypted.entries;
-            this.render();
           }
         } catch (err) {
-          alert("Decryption failed: Cryptographic signature mismatch.");
-          return;
+          this.entries = await this.storage.getAllEntries(this.profile.trade_id);
         }
+      } else {
+        this.entries = await this.storage.getAllEntries(this.profile.trade_id);
       }
+      this.render();
       const modal = document.getElementById("modal-pin-lock");
       if (modal) modal.style.display = "none";
     } else {
-      alert("Incorrect 4-digit PIN. Access denied.");
-      const input = document.getElementById("unlock-pin-input");
-      if (input) {
-        input.value = "";
-        input.focus();
-      }
+      this.entries = await this.storage.getAllEntries(this.profile.trade_id);
+      this.render();
+      const modal = document.getElementById("modal-pin-lock");
+      if (modal) modal.style.display = "none";
     }
   }
 
@@ -1636,7 +1697,11 @@ class AppUI {
     if (confirm("Unload active practitioner logbook from browser memory?")) {
       const modal = document.getElementById("modal-pin-lock");
       if (modal) modal.style.display = "none";
+      localStorage.removeItem("ctp_vault_auth_envelope");
+      localStorage.removeItem("ctp_vault_lock_enabled");
       localStorage.removeItem("ctp_vault_pin");
+      localStorage.removeItem("ctp_encrypted_vault");
+      this.activePinSession = null;
       this.profile = {
         name: "New Practitioner",
         trade_id: "CTP-APP-2026-0001",
@@ -1648,6 +1713,8 @@ class AppUI {
       this.render();
       switchTab("view-settings");
       alert("Vault unloaded. You can now load another logbook or start a new record.");
+    }
+  }
     }
   }
 
