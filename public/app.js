@@ -656,12 +656,15 @@ class AppUI {
   render() {
     const metrics = TradeEngine.calculateMetrics(this.entries, this.profile);
 
-    // Update Header and Hero Stats
-    const headerUserName = document.getElementById("header-user-name");
-    if (headerUserName) headerUserName.textContent = this.profile.name || "New Practitioner";
+    // Update Practitioner Identity Card in Title Banner
+    const displayUserName = document.getElementById("display-user-name");
+    if (displayUserName) displayUserName.textContent = this.profile.name || "New Practitioner";
 
-    const headerTier = document.getElementById("header-tier");
-    if (headerTier) headerTier.textContent = metrics.tier;
+    const displayUserTier = document.getElementById("display-user-tier");
+    if (displayUserTier) displayUserTier.textContent = metrics.tier;
+
+    const displayUserTradeId = document.getElementById("display-user-trade-id");
+    if (displayUserTradeId) displayUserTradeId.textContent = this.profile.trade_id || "CTP-APP-2026-0001";
 
     const totalEl = document.getElementById("hero-total-hours");
     if (totalEl) totalEl.textContent = metrics.effectiveOjtHours.toFixed(1) + " hrs";

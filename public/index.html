@@ -8,7 +8,7 @@
   <meta name="theme-color" content="#0ea5e9">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <link rel="stylesheet" href="styles.css?v=3.3.0">
+  <link rel="stylesheet" href="styles.css?v=3.3.1">
 </head>
 <body>
 
@@ -45,20 +45,24 @@
         <a href="https://github.com/DanielTolczyk/the-cyber-trade-project" target="_blank" rel="noopener" class="tool-link">
           <span>GitHub</span>
         </a>
-        <div class="user-profile-badge" id="header-user-badge">
-          <span id="header-user-name">New Practitioner</span>
-          <span class="badge-separator">&bull;</span>
-          <span class="tier-tag" id="header-tier">Tier 1 Apprentice</span>
-        </div>
       </div>
     </div>
   </header>
 
-  <!-- Title Banner -->
+  <!-- Title Banner with Prominent Practitioner Identity -->
   <div class="page-title-banner">
-    <div class="container">
-      <h1>Universal Digital Logbook &amp; Runtime Ledger</h1>
-      <p class="subtitle">Offline-first operational hour logging, line-of-sight supervisor attestations, and cryptographic audit bundle exports for registered cyber trades.</p>
+    <div class="container page-title-container">
+      <div class="page-title-text">
+        <h1>Universal Digital Logbook &amp; Runtime Ledger</h1>
+        <p class="subtitle">Offline-first operational hour logging, line-of-sight supervisor attestations, and cryptographic audit bundle exports for registered cyber trades.</p>
+      </div>
+      <div class="practitioner-identity-card" id="practitioner-identity-card">
+        <div class="practitioner-name" id="display-user-name">New Practitioner</div>
+        <div class="practitioner-meta">
+          <span class="practitioner-tier-badge" id="display-user-tier">Tier 1 Apprentice</span>
+          <span class="practitioner-id" id="display-user-trade-id">CTP-APP-2026-0001</span>
+        </div>
+      </div>
     </div>
   </div>
 
