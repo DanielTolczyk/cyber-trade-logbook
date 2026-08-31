@@ -493,6 +493,14 @@ class AppUI {
     const savedProfile = await this.storage.getProfile();
     if (savedProfile) {
       this.profile = savedProfile;
+      const nameInput = document.getElementById("prof-name");
+      const tradeIdInput = document.getElementById("prof-trade-id");
+      const supIdInput = document.getElementById("prof-sup-id");
+      const plaInput = document.getElementById("prof-pla");
+      if (nameInput) nameInput.value = this.profile.name || "";
+      if (tradeIdInput) tradeIdInput.value = this.profile.trade_id || "";
+      if (supIdInput) supIdInput.value = this.profile.supervisor_id || "";
+      if (plaInput) plaInput.value = this.profile.pla_hours || 0;
     }
     this.entries = await this.storage.getAllEntries(this.profile.trade_id);
     this.render();
@@ -1289,13 +1297,29 @@ class AppUI {
   async exitDemoMode() {
     this.currentDemoPersona = null;
     this.setDemoMode(false);
-    this.profile = {
-      name: "New Practitioner",
-      trade_id: "CTP-APP-2026-0001",
-      supervisor_id: "",
-      pla_hours: 0,
-      rti_hours: 0
-    };
+    
+    const savedProfile = await this.storage.getProfile();
+    if (savedProfile) {
+      this.profile = savedProfile;
+    } else {
+      this.profile = {
+        name: "New Practitioner",
+        trade_id: "CTP-APP-2026-0001",
+        supervisor_id: "",
+        pla_hours: 0,
+        rti_hours: 0
+      };
+    }
+
+    const nameInput = document.getElementById("prof-name");
+    const tradeIdInput = document.getElementById("prof-trade-id");
+    const supIdInput = document.getElementById("prof-sup-id");
+    const plaInput = document.getElementById("prof-pla");
+    if (nameInput) nameInput.value = this.profile.name || "";
+    if (tradeIdInput) tradeIdInput.value = this.profile.trade_id || "";
+    if (supIdInput) supIdInput.value = this.profile.supervisor_id || "";
+    if (plaInput) plaInput.value = this.profile.pla_hours || 0;
+
     this.entries = await this.storage.getAllEntries(this.profile.trade_id);
     this.render();
     if (typeof switchTab === "function") {
