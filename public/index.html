@@ -8,7 +8,7 @@
   <meta name="theme-color" content="#0ea5e9">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <link rel="stylesheet" href="styles.css?v=3.2.0">
+  <link rel="stylesheet" href="styles.css?v=3.2.1">
 </head>
 <body>
 
@@ -444,19 +444,19 @@
         <div class="form-grid">
           <div class="form-group">
             <label class="form-label">Full Name</label>
-            <input type="text" id="prof-name" class="form-control" value="Jane Doe">
+            <input type="text" id="prof-name" class="form-control" value="New Practitioner" placeholder="Your Full Name">
           </div>
           <div class="form-group">
             <label class="form-label">Trade Registration ID</label>
-            <input type="text" id="prof-trade-id" class="form-control" value="CTP-APP-2026-0884">
+            <input type="text" id="prof-trade-id" class="form-control" value="CTP-APP-2026-0001" placeholder="e.g. CTP-APP-2026-0001">
           </div>
           <div class="form-group">
             <label class="form-label">Supervisor License ID</label>
-            <input type="text" id="prof-sup-id" class="form-control" value="CTP-JRN-2024-0192">
+            <input type="text" id="prof-sup-id" class="form-control" value="" placeholder="e.g. CTP-JRN-2024-0192">
           </div>
           <div class="form-group">
             <label class="form-label">PLA Hour Credit (Max 4,000)</label>
-            <input type="number" id="prof-pla" class="form-control" value="1000">
+            <input type="number" id="prof-pla" class="form-control" value="0">
           </div>
           <div class="form-group full-width">
             <button id="btn-save-profile" class="btn btn-primary btn-block">Save Profile Changes</button>
@@ -668,7 +668,7 @@
       window.scrollTo(0, 0);
     }
   </script>
-  <script src="app.js?v=3.2.0"></script>
+  <script src="app.js?v=3.2.1"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {

@@ -465,11 +465,11 @@ class AppUI {
     this.storage = new LogbookStorage();
     this.entries = [];
     this.profile = {
-      name: "Jane Doe",
-      trade_id: "CTP-APP-2026-0884",
-      supervisor_id: "CTP-JRN-2024-0192",
-      pla_hours: 1000,
-      rti_hours: 288
+      name: "New Practitioner",
+      trade_id: "CTP-APP-2026-0001",
+      supervisor_id: "",
+      pla_hours: 0,
+      rti_hours: 0
     };
     this.specs = null;
   }
@@ -1290,11 +1290,11 @@ class AppUI {
     this.currentDemoPersona = null;
     this.setDemoMode(false);
     this.profile = {
-      name: "Jane Doe",
-      trade_id: "CTP-APP-2026-0884",
-      supervisor_id: "CTP-JRN-2024-0192",
-      pla_hours: 1000,
-      rti_hours: 288
+      name: "New Practitioner",
+      trade_id: "CTP-APP-2026-0001",
+      supervisor_id: "",
+      pla_hours: 0,
+      rti_hours: 0
     };
     this.entries = await this.storage.getAllEntries(this.profile.trade_id);
     this.render();
