@@ -19,7 +19,7 @@ To eliminate enterprise friction, corporate security audits, and software whitel
 
 The tool requires zero server setup for daily practitioners:
 
-### A. Mobile Phone & Tablet Setup (iOS & Android) — 100% Offline PWA
+### A. Mobile Phone & Tablet Setup (iOS & Android) : 100% Offline PWA
 No terminal commands, compilers, or server processes are required.
 1. **Visit Once:** Open `https://the-cyber-trade-project.github.io/logbook/` in Safari (iOS) or Chrome (Android).
 2. **Install to Home Screen:**

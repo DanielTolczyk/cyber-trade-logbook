@@ -24,8 +24,11 @@ class RuntimeExecution(BaseModel):
     hours_logged: float = Field(..., gt=0, le=24.0)
     core_domain: Literal[
         "D1_PERIMETER_CLOUD",
+        "D2_DETECTION_SOC",
         "D2_SYSTEM_HYGIENE",
+        "D3_IDENTITY_IAM",
         "D3_IDENTITY_ACCESS",
+        "D4_VULN_ATTACK",
         "D4_VULN_MANAGEMENT",
         "D5_DEFENSIVE_GRC"
     ]

@@ -1479,6 +1479,127 @@ class AppUI {
       });
     }
 
+    const btnExportBundle = document.getElementById("btn-export-bundle");
+    if (btnExportBundle) {
+      btnExportBundle.addEventListener("click", async () => {
+        const entriesToExport = this.entries.filter(e => !e.is_invalidated);
+        if (entriesToExport.length === 0) {
+          alert("Zero active entries available to build submission bundle.");
+          return;
+        }
+
+        let prev = null;
+        const entryHashes = [];
+        const domainHours = {
+          "D1_PERIMETER_CLOUD": 0,
+          "D2_DETECTION_SOC": 0,
+          "D3_IDENTITY_IAM": 0,
+          "D4_VULN_ATTACK": 0,
+          "D5_DEFENSIVE_GRC": 0
+        };
+
+        const canonicalEntries = [];
+
+        for (const e of entriesToExport) {
+          const dom = e.domain || (e.runtime_execution && e.runtime_execution.core_domain) || "D1_PERIMETER_CLOUD";
+          const hrs = parseFloat(e.hours || (e.runtime_execution && e.runtime_execution.hours_logged) || 0);
+          const dateVal = e.date || (e.runtime_execution && e.runtime_execution.date) || new Date().toISOString().slice(0, 10);
+          const artRef = (e.verification_artifacts && e.verification_artifacts[0] && e.verification_artifacts[0].artifact_reference) || e.artifact_ref || "NO_ARTIFACT";
+          const artType = (e.verification_artifacts && e.verification_artifacts[0] && e.verification_artifacts[0].artifact_type) || e.artifact_type || "git_commit_hash";
+          const artSummary = (e.verification_artifacts && e.verification_artifacts[0] && e.verification_artifacts[0].sanitized_summary) || e.summary || "Operational defense execution";
+          const logId = e.log_id || `LOG-${Date.now()}`;
+          const pracId = (e.practitioner && e.practitioner.trade_id) || this.profile.trade_id;
+
+          let domKey = "D1_PERIMETER_CLOUD";
+          if (dom.includes("D2")) domKey = "D2_DETECTION_SOC";
+          else if (dom.includes("D3")) domKey = "D3_IDENTITY_IAM";
+          else if (dom.includes("D4")) domKey = "D4_VULN_ATTACK";
+          else if (dom.includes("D5")) domKey = "D5_DEFENSIVE_GRC";
+
+          domainHours[domKey] = (domainHours[domKey] || 0) + hrs;
+
+          // Compute canonical chained hash
+          const prevVal = prev || "GENESIS_NODE_0000000000000000";
+          const payload = `${logId}:${prevVal}:${pracId}:${dateVal}:${hrs.toFixed(2)}:${domKey}:${artRef}`;
+          const enc = new TextEncoder().encode(payload);
+          const buf = await crypto.subtle.digest("SHA-256", enc);
+          const h = Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
+          entryHashes.push(h);
+          prev = h;
+
+          canonicalEntries.push({
+            log_id: logId,
+            practitioner: {
+              trade_id: pracId,
+              name: (e.practitioner && e.practitioner.name) || this.profile.name,
+              tier: (e.practitioner && e.practitioner.tier) || this.profile.tier || "Tier 1 Apprentice"
+            },
+            supervisor: {
+              trade_id: (e.supervisor && e.supervisor.trade_id) || e.supervisor_trade_id || "CTP-JRN-2024-0192",
+              license_status: "Active",
+              supervision_ratio_compliant: true
+            },
+            runtime_execution: {
+              date: dateVal,
+              hours_logged: hrs,
+              core_domain: domKey,
+              sub_domain: e.sub_domain || (e.runtime_execution && e.runtime_execution.sub_domain) || null,
+              environment_type: (e.runtime_execution && e.runtime_execution.environment_type) || "Enterprise_Production"
+            },
+            verification_artifacts: [
+              {
+                artifact_type: artType,
+                artifact_reference: artRef,
+                sanitized_summary: artSummary
+              }
+            ],
+            attestation: e.attestation || (e.supervisor_signature ? {
+              supervisor_signature: e.supervisor_signature,
+              signed_timestamp: e.signed_timestamp || new Date().toISOString(),
+              attestation_statement: "Verified operational runtime."
+            } : null)
+          });
+        }
+
+        // Compute Merkle Root
+        let currentLayer = entryHashes.slice();
+        let merkleRoot = "";
+        if (currentLayer.length === 0) {
+          const enc = new TextEncoder().encode("EMPTY_LEDGER_ROOT");
+          const buf = await crypto.subtle.digest("SHA-256", enc);
+          merkleRoot = Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("");
+        } else {
+          while (currentLayer.length > 1) {
+            const nextLayer = [];
+            for (let i = 0; i < currentLayer.length; i += 2) {
+              const left = currentLayer[i];
+              const right = (i + 1 < currentLayer.length) ? currentLayer[i + 1] : left;
+              const enc = new TextEncoder().encode(`${left}:${right}`);
+              const buf = await crypto.subtle.digest("SHA-256", enc);
+              nextLayer.push(Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join(""));
+            }
+            currentLayer = nextLayer;
+          }
+          merkleRoot = currentLayer[0];
+        }
+
+        const bundle = {
+          "$schema": "https://cybertrade.org/schemas/v1/submission-bundle.json",
+          "bundle_id": `BUNDLE-${this.profile.trade_id}-${new Date().toISOString().slice(0,10)}`,
+          "created_at": new Date().toISOString(),
+          "practitioner_id": this.profile.trade_id,
+          "practitioner_name": this.profile.name,
+          "current_tier": this.profile.tier || "Tier 1 Apprentice",
+          "merkle_root_hash": `sha256:${merkleRoot}`,
+          "entry_count": canonicalEntries.length,
+          "domain_hours": domainHours,
+          "entries": canonicalEntries
+        };
+
+        downloadJSON(`submission_bundle_${this.profile.trade_id}.json`, bundle);
+      });
+    }
+
     const btnExportVault = document.getElementById("btn-export-vault");
     if (btnExportVault) {
       btnExportVault.addEventListener("click", () => {

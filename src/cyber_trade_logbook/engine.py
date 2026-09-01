@@ -80,11 +80,11 @@ class TradeAccumulator:
 
             if d == "D1_PERIMETER_CLOUD":
                 progress.d1_perimeter_cloud += h
-            elif d == "D2_SYSTEM_HYGIENE":
+            elif d in ("D2_DETECTION_SOC", "D2_SYSTEM_HYGIENE"):
                 progress.d2_system_hygiene += h
-            elif d == "D3_IDENTITY_ACCESS":
+            elif d in ("D3_IDENTITY_IAM", "D3_IDENTITY_ACCESS"):
                 progress.d3_identity_access += h
-            elif d == "D4_VULN_MANAGEMENT":
+            elif d in ("D4_VULN_ATTACK", "D4_VULN_MANAGEMENT"):
                 progress.d4_vuln_management += h
             elif d == "D5_DEFENSIVE_GRC":
                 progress.d5_defensive_grc += h
@@ -178,7 +178,7 @@ class FatigueMonitor:
             )
 
         if (
-            entry.runtime_execution.core_domain == "D2_SYSTEM_HYGIENE"
+            entry.runtime_execution.core_domain in ("D2_DETECTION_SOC", "D2_SYSTEM_HYGIENE")
             and entry.runtime_execution.sub_domain == "LIVE_ALERT_TRIAGE"
             and h > cls.MAX_SOC_QUEUE_HOURS
         ):

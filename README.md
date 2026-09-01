@@ -68,7 +68,7 @@ logbook/
 
 The application requires zero server installations on mobile devices. It is distributed as a Progressive Web App (PWA) with client-side offline execution:
 
-### A. Mobile Setup (iOS & Android) — Zero Terminal Commands, 100% Offline
+### A. Mobile Setup (iOS & Android) : Zero Terminal Commands, 100% Offline
 
 ```
 [ STEP 1: INITIAL VISIT ]
