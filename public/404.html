@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>404 - Resource Not Found | Universal Digital Logbook</title>
+  
+  <!-- Defensive Security & Content Protection Directives -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self'; base-uri 'self'; form-action 'self';">
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), interest-cohort=()">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+
+  <link rel="stylesheet" href="styles.css?v=3.3.7">
+  <style>
+    .error-card {
+      background: #161f30;
+      border: 1px solid #1f2937;
+      border-radius: 8px;
+      padding: 36px 24px;
+      max-width: 580px;
+      margin: 4rem auto;
+      text-align: center;
+    }
+    .router-badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      background: #1e293b;
+      color: #38bdf8;
+      margin-bottom: 16px;
+    }
+    .links-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin: 24px 0;
+      text-align: left;
+    }
+    .grid-link {
+      display: block;
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 6px;
+      padding: 12px;
+      text-decoration: none;
+    }
+    .grid-link:hover {
+      border-color: #38bdf8;
+      background: #1e293b;
+    }
+    .grid-title {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: #38bdf8;
+      margin-bottom: 4px;
+    }
+    .grid-desc {
+      display: block;
+      font-size: 11px;
+      color: #94a3b8;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="portal-header">
+    <div class="portal-header-inner">
+      <a href="https://the-cyber-trade-project.github.io/framework/" class="portal-brand">
+        <span class="portal-brand-title">The Cybersecurity Trade Project</span>
+      </a>
+      <div class="portal-header-tools">
+        <a href="./" class="tool-link">
+          <span>Open Logbook</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="error-card">
+      <span class="router-badge">Trade Project Router</span>
+      <h1 style="font-size:22px; font-weight:800; color:#fff; margin-bottom:12px;">404: Logbook Resource Not Found</h1>
+      <p style="color:#94a3b8; font-size:14px; line-height:1.5;">
+        The requested URL was not found in the Universal Digital Logbook. You can return to your practitioner ledger or navigate to other trade project tools below.
+      </p>
+
+      <div class="links-grid">
+        <a href="./" class="grid-link">
+          <span class="grid-title">Digital Logbook</span>
+          <span class="grid-desc">Open your practitioner runtime vault</span>
+        </a>
+        <a href="https://the-cyber-trade-project.github.io/framework/" class="grid-link">
+          <span class="grid-title">Framework Portal</span>
+          <span class="grid-desc">Explore standards and governance</span>
+        </a>
+        <a href="https://the-cyber-trade-project.github.io/estimator/" class="grid-link">
+          <span class="grid-title">Career Estimator</span>
+          <span class="grid-desc">Calculate trade tier and PLA hours</span>
+        </a>
+        <a href="https://the-cyber-trade-project.github.io/clearinghouse/" class="grid-link">
+          <span class="grid-title">Trade Clearinghouse</span>
+          <span class="grid-desc">NCTB central registry and dispatch</span>
+        </a>
+        <a href="https://the-cyber-trade-project.github.io/telemetry/" class="grid-link" style="grid-column: span 2;">
+          <span class="grid-title">Telemetry Gateway</span>
+          <span class="grid-desc">Zero-knowledge ratio attestation and underwriter portal</span>
+        </a>
+      </div>
+
+      <a href="./" class="btn btn-primary" style="display:inline-block; padding:8px 20px;">Return to Logbook</a>
+    </div>
+  </main>
+</body>
+</html>
