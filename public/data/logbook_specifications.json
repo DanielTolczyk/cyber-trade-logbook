@@ -90,6 +90,21 @@
       "code": "SE-CLD",
       "name": "Cloud Security & Infrastructure",
       "wage_adder_pct": 15
+    },
+    "SE-APP": {
+      "code": "SE-APP",
+      "name": "Application & Software Product Security",
+      "wage_adder_pct": 0
+    },
+    "SE-ICAM": {
+      "code": "SE-ICAM",
+      "name": "Identity, Credential & Access Management",
+      "wage_adder_pct": 0
+    },
+    "SE-PKI": {
+      "code": "SE-PKI",
+      "name": "Cryptographic Infrastructure & PKI",
+      "wage_adder_pct": 0
     }
   },
   "nice_work_roles": [
@@ -262,5 +277,5 @@
       }
     ]
   },
-  "framework_version": "1.8.3"
+  "framework_version": "1.9.1"
 }

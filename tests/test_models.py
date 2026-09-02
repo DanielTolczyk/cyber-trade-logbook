@@ -18,7 +18,7 @@ def test_valid_digital_logbook_entry():
         entry_modality="digital",
         practitioner=PractitionerProfile(
             trade_id="CTP-APP-2026-0884",
-            name="Jane Doe",
+            name="Angela Moss",
             tier="Tier 2 Apprentice"
         ),
         supervisor=SupervisorProfile(
@@ -57,7 +57,7 @@ def test_valid_physical_logbook_entry():
         entry_modality="physical_bound",
         practitioner=PractitionerProfile(
             trade_id="CTP-APP-2026-0884",
-            name="Jane Doe",
+            name="Angela Moss",
             tier="Tier 1 Apprentice"
         ),
         runtime_execution=RuntimeExecution(

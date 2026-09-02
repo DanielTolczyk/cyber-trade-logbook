@@ -43,9 +43,11 @@ class TradeAccumulatorResult:
     physical_ledger_hours: float
     digital_ledger_hours: float
     rti_completed_hours: float
+    instructional_mentorship_hours: float
     tier_name: str
     wage_step_pct_rjpb: int
     journeyman_eligible: bool
+    master_eligible: bool = False
 
 
 class TradeAccumulator:
@@ -55,6 +57,8 @@ class TradeAccumulator:
     MAX_RANGE_HOURS = 1000.0
     JOURNEYMAN_OJT_TARGET = 8000.0
     JOURNEYMAN_RTI_TARGET = 576.0
+    MASTER_OJT_TARGET = 12000.0
+    MASTER_INSTRUCTIONAL_TARGET = 500.0
 
     @classmethod
     def evaluate(
@@ -69,6 +73,7 @@ class TradeAccumulator:
         range_h = 0.0
         physical_h = 0.0
         digital_h = 0.0
+        instructional_h = 0.0
 
         for entry in entries:
             # Skip invalidated entries from active hour accumulation
@@ -77,6 +82,7 @@ class TradeAccumulator:
 
             h = entry.runtime_execution.hours_logged
             d = entry.runtime_execution.core_domain
+            sub_d = (entry.runtime_execution.sub_domain or "").upper()
 
             if d == "D1_PERIMETER_CLOUD":
                 progress.d1_perimeter_cloud += h
@@ -88,6 +94,10 @@ class TradeAccumulator:
                 progress.d4_vuln_management += h
             elif d == "D5_DEFENSIVE_GRC":
                 progress.d5_defensive_grc += h
+
+            # Track instructional mentorship hours
+            if "MENTOR" in sub_d or "SUPERVIS" in sub_d or "INSTRUCT" in sub_d:
+                instructional_h += h
 
             if entry.attestation is not None or (
                 entry.physical_attestation and entry.physical_attestation.physical_signature_recorded
@@ -112,7 +122,7 @@ class TradeAccumulator:
         tier_name = "Tier 1 Apprentice"
         wage_pct = 50
 
-        if effective_ojt >= 12000.0:
+        if effective_ojt >= cls.MASTER_OJT_TARGET:
             tier_name = "Master Practitioner"
             wage_pct = 135
         elif effective_ojt >= cls.JOURNEYMAN_OJT_TARGET and rti_hours >= cls.JOURNEYMAN_RTI_TARGET:
@@ -138,6 +148,11 @@ class TradeAccumulator:
             and progress.d5_defensive_grc >= progress.D5_TARGET
         )
 
+        master_ready = (
+            effective_ojt >= cls.MASTER_OJT_TARGET
+            and instructional_h >= cls.MASTER_INSTRUCTIONAL_TARGET
+        )
+
         return TradeAccumulatorResult(
             domain_progress=progress,
             total_ojt_hours=total_ojt,
@@ -149,9 +164,11 @@ class TradeAccumulator:
             physical_ledger_hours=physical_h,
             digital_ledger_hours=digital_h,
             rti_completed_hours=rti_hours,
+            instructional_mentorship_hours=instructional_h,
             tier_name=tier_name,
             wage_step_pct_rjpb=wage_pct,
-            journeyman_eligible=journeyman_ready
+            journeyman_eligible=journeyman_ready,
+            master_eligible=master_ready
         )
 
 

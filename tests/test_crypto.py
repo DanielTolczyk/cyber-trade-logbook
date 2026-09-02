@@ -19,7 +19,7 @@ def make_test_entry(trade_id: str, date_val: date, hours: float, prev_hash: str)
         prev_entry_hash=prev_hash,
         practitioner=PractitionerProfile(
             trade_id=trade_id,
-            name="Alice Defender",
+            name="Molly Millions",
             tier="Tier 2 Apprentice"
         ),
         supervisor=SupervisorProfile(
@@ -143,7 +143,7 @@ def test_apprentice_peer_signing_blocked():
     apprentice_cred = TradeKeyManager.issue_board_credential(
         board_root_private_key=board_priv,
         trade_id="CTP-APP-2026-0042",
-        legal_name="Bob Apprentice",
+        legal_name="Joey Pardella",
         certified_role="Registered Apprentice",
         practitioner_public_key=apprentice_pub,
         expires_timestamp=expires
@@ -234,7 +234,7 @@ def test_jatc_physical_audit_seal_issuance_and_verification():
             "D3_IDENTITY_ACCESS": 400.0
         },
         supervisors_verified=["CTP-JRN-2024-0192", "CTP-MST-2022-0041"],
-        examiner_name="David Sterling",
+        examiner_name="Daisuke Aramaki",
         examiner_trade_id="CTP-DIR-2020-0005",
         regional_local="JATC Local 101 - Great Lakes"
     )

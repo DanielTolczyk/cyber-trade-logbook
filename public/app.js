@@ -999,7 +999,7 @@ class AppUI {
         <div style="background:var(--bg-primary); border:1px solid var(--border-color); border-radius:8px; padding:14px;">
           <h4 style="font-size:13px; font-weight:700; margin-bottom:8px; color:var(--accent-amber);">3. Wage Step Advancement Gating</h4>
           <p style="font-size:12px; color:var(--text-secondary); margin-bottom:10px;">Approve apprentice progression to next statutory wage step upon meeting rotational domain thresholds.</p>
-          <button class="btn btn-secondary btn-block" onclick="alert('JATC Board Elevation Approved: Jane Doe accredited for Tier 3 Apprentice advancement (70% RJPB). Wage notification dispatched to employer.')">Approve Wage Elevation (Tier 2 ➔ Tier 3: 70% RJPB)</button>
+          <button class="btn btn-secondary btn-block" onclick="alert('JATC Board Elevation Approved: Angela Moss accredited for Tier 3 Apprentice advancement (70% RJPB). Wage notification dispatched to employer.')">Approve Wage Elevation (Tier 2 ➔ Tier 3: 70% RJPB)</button>
         </div>
       `;
       queueEl.innerHTML = html;
@@ -1255,7 +1255,7 @@ class AppUI {
       }
       this.entries = await this.storage.getAllEntries(this.profile.trade_id);
       this.currentDemoPersona = "apprentice";
-      this.setDemoMode(true, "DEMO MODE: Apprentice Persona (Jane Doe - 3.4k hrs)");
+      this.setDemoMode(true, "DEMO MODE: Apprentice Persona (Angela Moss - 3.4k hrs)");
       this.render();
       if (typeof switchTab === "function") {
         switchTab("view-dashboard");
@@ -1295,7 +1295,7 @@ class AppUI {
       }
       this.entries = await this.storage.getAllEntries(this.profile.trade_id);
       this.currentDemoPersona = "auditor";
-      this.setDemoMode(true, "DEMO MODE: JATC Auditor Persona (David Sterling - Director)");
+      this.setDemoMode(true, "DEMO MODE: JATC Auditor Persona (Daisuke Aramaki - Director)");
       this.render();
       if (typeof switchTab === "function") {
         switchTab("view-dashboard");
