@@ -11,7 +11,7 @@ Under **Pillar V** and **Pillar VII** of The Cybersecurity Trade Project, a prac
 To eliminate enterprise friction, corporate security audits, and software whitelisting hurdles:
 * **Zero Enterprise Footprint:** The application operates entirely on personal mobile devices (iOS/Android) or offline workstations. No software is ever installed on enterprise production infrastructure.
 * **100% Client-Side Privacy:** All records, cryptographic hash chains, and keypairs reside in local browser storage (IndexedDB). Zero telemetry, tracking pixels, or third-party cookies are transmitted.
-* **True Offline Execution:** Functions seamlessly without internet access inside air-gapped Security Operations Centers (SOCs) or sensitive compartmented information facilities (SCIFs).
+* **True Offline Execution:** Functions reliably without internet access inside air-gapped Security Operations Centers (SOCs) or sensitive compartmented information facilities (SCIFs).
 
 ---
 
