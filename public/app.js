@@ -1837,8 +1837,6 @@ class AppUI {
       alert("Vault unloaded. You can now load another logbook or start a new record.");
     }
   }
-    }
-  }
 
   checkLegacyRedirectTelemetry() {
     try {
