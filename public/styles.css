@@ -314,14 +314,14 @@ body {
 
   .portal-header-tools {
     display: grid;
-    grid-template-columns: 1.3fr 1fr 1fr;
+    grid-template-columns: repeat(4, 1fr);
     gap: 6px;
     width: 100%;
   }
 
   .tool-link {
     width: 100%;
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     padding: 0.4rem 0.2rem;
     text-align: center;
     justify-content: center;
